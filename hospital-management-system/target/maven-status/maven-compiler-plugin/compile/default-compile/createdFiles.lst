@@ -1,9 +1,10 @@
 com/hospital/impl/BillDAOImpl.class
-com/hospital/util/DBConnection.class
+com/hospital/model/User.class
 com/hospital/dao/BillDAO.class
 com/hospital/impl/PatientDAOImpl.class
 com/hospital/model/Prescription.class
 com/hospital/controller/MainMenu.class
+com/hospital/util/TablePrinter.class
 com/hospital/model/Department.class
 com/hospital/App.class
 com/hospital/controller/PatientMenu.class
@@ -26,6 +27,7 @@ com/hospital/controller/AdminMenu.class
 com/hospital/dao/DoctorDAO.class
 com/hospital/impl/MedicalRecordDAOImpl.class
 com/hospital/dao/MedicalRecordDAO.class
+com/hospital/exception/AuthenticationException.class
 com/hospital/model/Payment.class
 com/hospital/model/MedicalRecord.class
 com/hospital/controller/BillingMenu.class
@@ -33,4 +35,6 @@ com/hospital/service/PatientService.class
 com/hospital/dao/DepartmentDAO.class
 com/hospital/dao/PrescriptionDAO.class
 com/hospital/controller/InputHelper.class
+com/hospital/util/UserStore.class
+com/hospital/service/AuthService.class
 com/hospital/impl/DoctorDAOImpl.class

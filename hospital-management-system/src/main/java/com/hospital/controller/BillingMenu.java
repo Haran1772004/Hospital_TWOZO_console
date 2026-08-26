@@ -8,6 +8,7 @@ import com.hospital.model.Bill;
 import com.hospital.model.Patient;
 import com.hospital.model.Payment;
 import com.hospital.service.BillingService;
+import com.hospital.util.TablePrinter;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
@@ -38,7 +39,7 @@ public class BillingMenu {
                 case "1" -> generateBill(scanner);
                 case "2" -> recordPayment(scanner);
                 case "3" -> viewPaymentHistory(scanner);
-                case "4" -> billDAO.getAllBills().forEach(System.out::println);
+                case "4" -> TablePrinter.printBills(billDAO.getAllBills());
                 case "0" -> back = true;
                 default -> System.out.println("Invalid choice.");
             }
@@ -48,7 +49,7 @@ public class BillingMenu {
     private static void generateBill(Scanner scanner) {
 
         System.out.println("\nAvailable patients:");
-        patientDAO.getAllPatients().forEach(System.out::println);
+        TablePrinter.printPatients(patientDAO.getAllPatients());
         int patientId = InputHelper.readInt(scanner, "Patient ID: ");
         Patient patient = patientDAO.getPatientById(patientId);
 
@@ -76,7 +77,7 @@ public class BillingMenu {
             return;
         }
 
-        System.out.println(bill);
+        TablePrinter.printBill(bill);
 
         BigDecimal amount = InputHelper.readBigDecimal(scanner, "Amount paid: ");
         String date = InputHelper.readText(scanner, "Payment date (yyyy-MM-dd): ");

@@ -11,6 +11,8 @@ public interface DepartmentDAO {
 
     void deactivateDepartment(int departmentId);
 
+    void activateDepartment(int departmentId);
+
     Department getDepartmentById(int departmentId);
 
     List<Department> getAllDepartments();

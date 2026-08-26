@@ -1,26 +1,25 @@
 package com.hospital.controller;
 
+import com.hospital.model.User;
 import com.hospital.service.PatientService;
-
+import com.hospital.util.TablePrinter;
+import com.hospital.util.UserStore;
 import java.util.Scanner;
 
 public class PatientMenu {
 
     private static final PatientService patientService = new PatientService();
 
-    public static void show(Scanner scanner) {
-
-        int patientId = InputHelper.readInt(scanner, "Enter your Patient ID to log in: ");
+    public static void show(Scanner scanner, User user) {
+        int patientId = user.getLinkedId();
 
         if (patientService.viewPersonalDetails(patientId) == null) {
-            System.out.println("No patient found with that ID.");
+            System.out.println("No patient found for this account.");
             return;
         }
 
         boolean back = false;
-
         while (!back) {
-
             System.out.println("\n--- PATIENT MENU ---");
             System.out.println("1. View Personal Details");
             System.out.println("2. View Appointments");
@@ -30,16 +29,15 @@ public class PatientMenu {
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose option: ");
 
-            String choice = scanner.nextLine().trim();
-
-            switch (choice) {
-                case "1" -> System.out.println(patientService.viewPersonalDetails(patientId));
-                case "2" -> patientService.viewAppointments(patientId).forEach(System.out::println);
-                case "3" -> patientService.viewMedicalRecords(patientId).forEach(System.out::println);
-                case "4" -> patientService.viewPrescriptions(patientId).forEach(System.out::println);
-                case "5" -> patientService.viewFullProfile(patientId);
+            switch (scanner.nextLine().trim()) {
+                // Show personal details + own login credentials (safe: patient views only their own)
+                case "1" -> patientService.viewPersonalDetailsWithCredentials(patientId, user);
+                case "2" -> TablePrinter.printAppointments(patientService.viewAppointments(patientId));
+                case "3" -> TablePrinter.printMedicalRecords(patientService.viewMedicalRecords(patientId));
+                case "4" -> TablePrinter.printPrescriptions(patientService.viewPrescriptions(patientId));
+                case "5" -> patientService.viewFullProfile(patientId, user);
                 case "0" -> back = true;
-                default -> System.out.println("Invalid choice.");
+                default  -> System.out.println("Invalid choice.");
             }
         }
     }

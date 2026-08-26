@@ -11,6 +11,8 @@ public interface PatientDAO {
 
     void deactivatePatient(int patientId);
 
+    void activatePatient(int patientId);
+
     Patient getPatientById(int patientId);
 
     List<Patient> getAllPatients();

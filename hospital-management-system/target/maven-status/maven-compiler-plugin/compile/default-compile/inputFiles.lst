@@ -14,6 +14,7 @@
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/dao/PatientDAO.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/dao/PaymentDAO.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/dao/PrescriptionDAO.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/exception/AuthenticationException.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/impl/AppointmentDAOImpl.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/impl/BillDAOImpl.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/impl/DepartmentDAOImpl.java
@@ -30,7 +31,10 @@
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/model/Patient.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/model/Payment.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/model/Prescription.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/model/User.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/service/AdminService.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/service/AuthService.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/service/BillingService.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/service/PatientService.java
-/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/util/DBConnection.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/util/TablePrinter.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/util/UserStore.java

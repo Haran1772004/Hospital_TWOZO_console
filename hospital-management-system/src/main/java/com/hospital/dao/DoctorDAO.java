@@ -11,8 +11,9 @@ public interface DoctorDAO {
 
     void deactivateDoctor(int doctorId);
 
+    void activateDoctor(int doctorId);
+
     Doctor getDoctorById(int doctorId);
 
     List<Doctor> getAllDoctors();
-
 }

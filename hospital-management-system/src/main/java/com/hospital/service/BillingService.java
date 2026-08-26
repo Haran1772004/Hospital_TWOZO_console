@@ -6,6 +6,7 @@ import com.hospital.impl.BillDAOImpl;
 import com.hospital.impl.PaymentDAOImpl;
 import com.hospital.model.Bill;
 import com.hospital.model.Payment;
+import com.hospital.util.TablePrinter;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -74,11 +75,11 @@ public class BillingService {
         }
 
         System.out.println("========== PAYMENT HISTORY - Bill #" + billId + " ==========");
-        System.out.println(bill);
+        TablePrinter.printBill(bill);
 
         List<Payment> payments = paymentDAO.getPaymentsByBill(billId);
         System.out.println("\nPayments:");
-        payments.forEach(System.out::println);
+        TablePrinter.printPayments(payments);
 
         BigDecimal totalPaid = getTotalPaid(billId);
         BigDecimal remaining = bill.getTotalAmount().subtract(totalPaid);
