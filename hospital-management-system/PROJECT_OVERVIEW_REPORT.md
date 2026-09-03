@@ -27,8 +27,8 @@ The application follows a layered structure:
 ```text
 User
   -> Controller menus
-      -> Services and LC interfaces
-          -> JDBC LC implementations
+      -> Services and LF interfaces
+          -> JDBC LF implementations
               -> DBConnection
                   -> MySQL database
 ```
@@ -73,27 +73,27 @@ There is no web framework, REST API, ORM, GUI, Spring configuration, or visible 
 - `src/main/java/com/hospital/controller/BillingMenu.java`
 - `src/main/java/com/hospital/controller/InputHelper.java`
 
-### LC interfaces
+### LF interfaces
 
-- `src/main/java/com/hospital/LC/PatientLC.java`
-- `src/main/java/com/hospital/LC/DoctorLC.java`
-- `src/main/java/com/hospital/LC/DepartmentLC.java`
-- `src/main/java/com/hospital/LC/AppointmentLC.java`
-- `src/main/java/com/hospital/LC/MedicalRecordLC.java`
-- `src/main/java/com/hospital/LC/PrescriptionLC.java`
-- `src/main/java/com/hospital/LC/BillLC.java`
-- `src/main/java/com/hospital/LC/PaymentLC.java`
+- `src/main/java/com/hospital/LF/PatientLF.java`
+- `src/main/java/com/hospital/LF/DoctorLF.java`
+- `src/main/java/com/hospital/LF/DepartmentLF.java`
+- `src/main/java/com/hospital/LF/AppointmentLF.java`
+- `src/main/java/com/hospital/LF/MedicalRecordLF.java`
+- `src/main/java/com/hospital/LF/PrescriptionLF.java`
+- `src/main/java/com/hospital/LF/BillLF.java`
+- `src/main/java/com/hospital/LF/PaymentLF.java`
 
-### LC implementations
+### LF implementations
 
-- `src/main/java/com/hospital/impl/PatientLCImpl.java`
-- `src/main/java/com/hospital/impl/DoctorLCImpl.java`
-- `src/main/java/com/hospital/impl/DepartmentLCImpl.java`
-- `src/main/java/com/hospital/impl/AppointmentLCImpl.java`
-- `src/main/java/com/hospital/impl/MedicalRecordLCImpl.java`
-- `src/main/java/com/hospital/impl/PrescriptionLCImpl.java`
-- `src/main/java/com/hospital/impl/BillLCImpl.java`
-- `src/main/java/com/hospital/impl/PaymentLCImpl.java`
+- `src/main/java/com/hospital/impl/PatientLFImpl.java`
+- `src/main/java/com/hospital/impl/DoctorLFImpl.java`
+- `src/main/java/com/hospital/impl/DepartmentLFImpl.java`
+- `src/main/java/com/hospital/impl/AppointmentLFImpl.java`
+- `src/main/java/com/hospital/impl/MedicalRecordLFImpl.java`
+- `src/main/java/com/hospital/impl/PrescriptionLFImpl.java`
+- `src/main/java/com/hospital/impl/BillLFImpl.java`
+- `src/main/java/com/hospital/impl/PaymentLFImpl.java`
 
 ### Model classes
 
@@ -149,7 +149,7 @@ The method calls `MainMenu.start()` and begins the application.
 
 # 5. Controller Layer
 
-The controller layer implements the console user interface. Controllers display menus, read input, construct model objects, and call services or LCs.
+The controller layer implements the console user interface. Controllers display menus, read input, construct model objects, and call services or LFs.
 
 ## 5.1 MainMenu
 
@@ -187,15 +187,15 @@ File: `src/main/java/com/hospital/controller/AdminMenu.java`
 ### Fields
 
 ```java
-private static final DepartmentLC departmentLC
-private static final DoctorLC doctorLC
+private static final DepartmentLF departmentLF
+private static final DoctorLF doctorLF
 private static final AdminService adminService
 ```
 
 Concrete objects created:
 
-- `DepartmentLCImpl`
-- `DoctorLCImpl`
+- `DepartmentLFImpl`
+- `DoctorLFImpl`
 - `AdminService`
 
 ### Public method
@@ -262,16 +262,16 @@ File: `src/main/java/com/hospital/controller/ReceptionistMenu.java`
 ### Fields
 
 ```java
-private static final PatientLC patientLC
-private static final DoctorLC doctorLC
-private static final AppointmentLC appointmentLC
+private static final PatientLF patientLF
+private static final DoctorLF doctorLF
+private static final AppointmentLF appointmentLF
 ```
 
 Concrete implementations:
 
-- `PatientLCImpl`
-- `DoctorLCImpl`
-- `AppointmentLCImpl`
+- `PatientLFImpl`
+- `DoctorLFImpl`
+- `AppointmentLFImpl`
 
 ### Public method
 
@@ -307,7 +307,7 @@ Loads a patient by ID and allows phone, email, and address updates. Blank input 
 private static void bookAppointment(Scanner scanner)
 ```
 
-Displays patients and doctors, validates both IDs, reads date and time, creates a `SCHEDULED` appointment, and calls the appointment LC.
+Displays patients and doctors, validates both IDs, reads date and time, creates a `SCHEDULED` appointment, and calls the appointment LF.
 
 ```java
 private static void cancelAppointment(Scanner scanner)
@@ -328,10 +328,10 @@ File: `src/main/java/com/hospital/controller/DoctorMenu.java`
 ### Fields
 
 ```java
-private static final AppointmentLC appointmentLC
-private static final PatientLC patientLC
-private static final MedicalRecordLC medicalRecordLC
-private static final PrescriptionLC prescriptionLC
+private static final AppointmentLF appointmentLF
+private static final PatientLF patientLF
+private static final MedicalRecordLF medicalRecordLF
+private static final PrescriptionLF prescriptionLF
 ```
 
 ### Public method
@@ -415,8 +415,8 @@ File: `src/main/java/com/hospital/controller/BillingMenu.java`
 ### Fields
 
 ```java
-private static final BillLC billLC
-private static final PatientLC patientLC
+private static final BillLF billLF
+private static final PatientLF patientLF
 private static final BillingService billingService
 ```
 
@@ -695,7 +695,7 @@ private String status;
 
 Money is represented with `BigDecimal`.
 
-The total is calculated as:
+The total is caLFulated as:
 
 ```text
 consultationCharge + medicineCharge + otherCharge
@@ -739,15 +739,15 @@ A payment belongs to a bill through `billId`.
 
 ---
 
-# 7. LC Interfaces
+# 7. LF Interfaces
 
-The LC layer defines persistence contracts. Each interface has one JDBC implementation in the `impl` package.
+The LF layer defines persistence contracts. Each interface has one JDBC implementation in the `impl` package.
 
-## PatientLC
+## PatientLF
 
-File: `src/main/java/com/hospital/LC/PatientLC.java`
+File: `src/main/java/com/hospital/LF/PatientLF.java`
 
-Implemented by `PatientLCImpl`.
+Implemented by `PatientLFImpl`.
 
 ```java
 void addPatient(Patient patient);
@@ -757,11 +757,11 @@ Patient getPatientById(int patientId);
 List<Patient> getAllPatients();
 ```
 
-## DoctorLC
+## DoctorLF
 
-File: `src/main/java/com/hospital/LC/DoctorLC.java`
+File: `src/main/java/com/hospital/LF/DoctorLF.java`
 
-Implemented by `DoctorLCImpl`.
+Implemented by `DoctorLFImpl`.
 
 ```java
 void addDoctor(Doctor doctor);
@@ -771,11 +771,11 @@ Doctor getDoctorById(int doctorId);
 List<Doctor> getAllDoctors();
 ```
 
-## DepartmentLC
+## DepartmentLF
 
-File: `src/main/java/com/hospital/LC/DepartmentLC.java`
+File: `src/main/java/com/hospital/LF/DepartmentLF.java`
 
-Implemented by `DepartmentLCImpl`.
+Implemented by `DepartmentLFImpl`.
 
 ```java
 void addDepartment(Department department);
@@ -785,11 +785,11 @@ Department getDepartmentById(int departmentId);
 List<Department> getAllDepartments();
 ```
 
-## AppointmentLC
+## AppointmentLF
 
-File: `src/main/java/com/hospital/LC/AppointmentLC.java`
+File: `src/main/java/com/hospital/LF/AppointmentLF.java`
 
-Implemented by `AppointmentLCImpl`.
+Implemented by `AppointmentLFImpl`.
 
 ```java
 void bookAppointment(Appointment appointment);
@@ -801,11 +801,11 @@ List<Appointment> getTodaysAppointments();
 List<Appointment> getAllAppointments();
 ```
 
-## MedicalRecordLC
+## MedicalRecordLF
 
-File: `src/main/java/com/hospital/LC/MedicalRecordLC.java`
+File: `src/main/java/com/hospital/LF/MedicalRecordLF.java`
 
-Implemented by `MedicalRecordLCImpl`.
+Implemented by `MedicalRecordLFImpl`.
 
 ```java
 void createMedicalRecord(MedicalRecord record);
@@ -815,22 +815,22 @@ List<MedicalRecord> getRecordsByDoctor(int doctorId);
 List<MedicalRecord> getAllRecords();
 ```
 
-## PrescriptionLC
+## PrescriptionLF
 
-File: `src/main/java/com/hospital/LC/PrescriptionLC.java`
+File: `src/main/java/com/hospital/LF/PrescriptionLF.java`
 
-Implemented by `PrescriptionLCImpl`.
+Implemented by `PrescriptionLFImpl`.
 
 ```java
 void addPrescription(Prescription prescription);
 List<Prescription> getPrescriptionsByRecord(int recordId);
 ```
 
-## BillLC
+## BillLF
 
-File: `src/main/java/com/hospital/LC/BillLC.java`
+File: `src/main/java/com/hospital/LF/BillLF.java`
 
-Implemented by `BillLCImpl`.
+Implemented by `BillLFImpl`.
 
 ```java
 void generateBill(Bill bill);
@@ -840,11 +840,11 @@ List<Bill> getBillsByPatient(int patientId);
 List<Bill> getAllBills();
 ```
 
-## PaymentLC
+## PaymentLF
 
-File: `src/main/java/com/hospital/LC/PaymentLC.java`
+File: `src/main/java/com/hospital/LF/PaymentLF.java`
 
-Implemented by `PaymentLCImpl`.
+Implemented by `PaymentLFImpl`.
 
 ```java
 void recordPayment(Payment payment);
@@ -852,19 +852,19 @@ List<Payment> getPaymentsByBill(int billId);
 List<Payment> getAllPayments();
 ```
 
-There is no LC inheritance hierarchy beyond each implementation implementing its matching interface.
+There is no LF inheritance hierarchy beyond each implementation implementing its matching interface.
 
 ---
 
-# 8. LC Implementation Layer
+# 8. LF Implementation Layer
 
-All LC implementation classes use JDBC, `DBConnection`, `PreparedStatement`, `ResultSet`, and try-with-resources. SQL exceptions are printed to the console. Retrieval operations generally return `null` for a missing single object or an empty list for no collection results.
+All LF implementation classes use JDBC, `DBConnection`, `PreparedStatement`, `ResultSet`, and try-with-resources. SQL exceptions are printed to the console. Retrieval operations generally return `null` for a missing single object or an empty list for no collection results.
 
-## 8.1 DepartmentLCImpl
+## 8.1 DepartmentLFImpl
 
-File: `src/main/java/com/hospital/impl/DepartmentLCImpl.java`
+File: `src/main/java/com/hospital/impl/DepartmentLFImpl.java`
 
-Implements `DepartmentLC`.
+Implements `DepartmentLF`.
 
 ### Database table
 
@@ -889,11 +889,11 @@ status
 - `getDepartmentById`: selects one department
 - `getAllDepartments`: selects all departments
 
-## 8.2 PatientLCImpl
+## 8.2 PatientLFImpl
 
-File: `src/main/java/com/hospital/impl/PatientLCImpl.java`
+File: `src/main/java/com/hospital/impl/PatientLFImpl.java`
 
-Implements `PatientLC`.
+Implements `PatientLF`.
 
 ### Database table
 
@@ -922,11 +922,11 @@ status
 - `getPatientById`: selects one patient
 - `getAllPatients`: selects all patients
 
-## 8.3 DoctorLCImpl
+## 8.3 DoctorLFImpl
 
-File: `src/main/java/com/hospital/impl/DoctorLCImpl.java`
+File: `src/main/java/com/hospital/impl/DoctorLFImpl.java`
 
-Implements `DoctorLC`.
+Implements `DoctorLF`.
 
 ### Database tables
 
@@ -947,11 +947,11 @@ A null department causes `IllegalArgumentException` during add/update.
 
 The doctor retrieval SQL uses an inner `JOIN`, so a doctor must have a matching department row to be returned.
 
-## 8.4 AppointmentLCImpl
+## 8.4 AppointmentLFImpl
 
-File: `src/main/java/com/hospital/impl/AppointmentLCImpl.java`
+File: `src/main/java/com/hospital/impl/AppointmentLFImpl.java`
 
-Implements `AppointmentLC`.
+Implements `AppointmentLF`.
 
 ### Constant field
 
@@ -995,11 +995,11 @@ Appointment
 
 Cancelled appointments do not block a doctor’s time slot because availability only checks `SCHEDULED` rows.
 
-## 8.5 MedicalRecordLCImpl
+## 8.5 MedicalRecordLFImpl
 
-File: `src/main/java/com/hospital/impl/MedicalRecordLCImpl.java`
+File: `src/main/java/com/hospital/impl/MedicalRecordLFImpl.java`
 
-Implements `MedicalRecordLC`.
+Implements `MedicalRecordLF`.
 
 ### Constant field
 
@@ -1044,11 +1044,11 @@ MedicalRecord
 - `getRecordsByDoctor`: retrieves records by doctor, newest record date first
 - `getAllRecords`: retrieves all records, newest record date first
 
-## 8.6 PrescriptionLCImpl
+## 8.6 PrescriptionLFImpl
 
-File: `src/main/java/com/hospital/impl/PrescriptionLCImpl.java`
+File: `src/main/java/com/hospital/impl/PrescriptionLFImpl.java`
 
-Implements `PrescriptionLC`.
+Implements `PrescriptionLF`.
 
 ### Database table
 
@@ -1071,11 +1071,11 @@ duration
 - `addPrescription`: inserts a prescription
 - `getPrescriptionsByRecord`: retrieves prescriptions for a medical record
 
-## 8.7 BillLCImpl
+## 8.7 BillLFImpl
 
-File: `src/main/java/com/hospital/impl/BillLCImpl.java`
+File: `src/main/java/com/hospital/impl/BillLFImpl.java`
 
-Implements `BillLC`.
+Implements `BillLF`.
 
 ### Constant field
 
@@ -1095,13 +1095,13 @@ Creates a `Patient` and uses it to create a `Bill`.
 
 ### Methods
 
-- `generateBill`: calculates the total and inserts the bill
+- `generateBill`: caLFulates the total and inserts the bill
 - `updateBillStatus`: updates a bill status by ID
 - `getBillById`: retrieves one bill
 - `getBillsByPatient`: retrieves patient bills newest first
 - `getAllBills`: retrieves all bills newest first
 
-### Total calculation
+### Total caLFulation
 
 ```text
 Total = consultation charge + medicine charge + other charge
@@ -1109,11 +1109,11 @@ Total = consultation charge + medicine charge + other charge
 
 The inserted bill status is always `UNPAID`, and the generated bill ID is written back to the model.
 
-## 8.8 PaymentLCImpl
+## 8.8 PaymentLFImpl
 
-File: `src/main/java/com/hospital/impl/PaymentLCImpl.java`
+File: `src/main/java/com/hospital/impl/PaymentLFImpl.java`
 
-Implements `PaymentLC`.
+Implements `PaymentLF`.
 
 ### Database table
 
@@ -1138,10 +1138,10 @@ File: `src/main/java/com/hospital/service/PatientService.java`
 ### Fields
 
 ```java
-private final PatientLC patientLC
-private final AppointmentLC appointmentLC
-private final MedicalRecordLC medicalRecordLC
-private final PrescriptionLC prescriptionLC
+private final PatientLF patientLF
+private final AppointmentLF appointmentLF
+private final MedicalRecordLF medicalRecordLF
+private final PrescriptionLF prescriptionLF
 ```
 
 ### Methods
@@ -1183,9 +1183,9 @@ File: `src/main/java/com/hospital/service/AdminService.java`
 ### Fields
 
 ```java
-private final DoctorLC doctorLC
-private final PatientLC patientLC
-private final DepartmentLC departmentLC
+private final DoctorLF doctorLF
+private final PatientLF patientLF
+private final DepartmentLF departmentLF
 ```
 
 ### Method
@@ -1205,8 +1205,8 @@ File: `src/main/java/com/hospital/service/BillingService.java`
 ### Fields
 
 ```java
-private final BillLC billLC
-private final PaymentLC paymentLC
+private final BillLF billLF
+private final PaymentLF paymentLF
 ```
 
 ### Methods
@@ -1245,7 +1245,7 @@ public void viewPaymentHistory(int billId)
 
 Displays the bill, all payments, total paid, and remaining balance.
 
-Remaining balance is calculated as:
+Remaining balance is caLFulated as:
 
 ```text
 bill total - total paid
@@ -1354,7 +1354,7 @@ public static void printPayment(Payment payment)
 private static void printTable(String[] headers, String[][] data)
 ```
 
-This method calculates column widths, prints separator lines, prints headers, prints rows, and substitutes empty strings for null values.
+This method caLFulates column widths, prints separator lines, prints headers, prints rows, and substitutes empty strings for null values.
 
 Single-object print methods delegate to their list equivalent using a one-element list.
 
@@ -1430,7 +1430,7 @@ Payment
 MainMenu
   -> ReceptionistMenu
       -> Register Patient
-          -> PatientLCImpl.addPatient
+          -> PatientLFImpl.addPatient
               -> INSERT INTO patient
 ```
 
@@ -1442,7 +1442,7 @@ The new patient receives `ACTIVE` status.
 MainMenu
   -> AdminMenu
       -> Add Department
-          -> DepartmentLCImpl.addDepartment
+          -> DepartmentLFImpl.addDepartment
               -> INSERT INTO department
 ```
 
@@ -1453,7 +1453,7 @@ MainMenu
   -> AdminMenu
       -> Add Doctor
           -> Select department
-          -> DoctorLCImpl.addDoctor
+          -> DoctorLFImpl.addDoctor
               -> INSERT INTO doctor
 ```
 
@@ -1466,8 +1466,8 @@ ReceptionistMenu
   -> Select patient
   -> Select doctor
   -> Enter appointment date and time
-  -> AppointmentLCImpl.isDoctorAvailable
-  -> AppointmentLCImpl.bookAppointment
+  -> AppointmentLFImpl.isDoctorAvailable
+  -> AppointmentLFImpl.bookAppointment
       -> INSERT INTO appointment
 ```
 
@@ -1478,7 +1478,7 @@ The appointment is stored as `SCHEDULED` if the doctor has no scheduled appointm
 ```text
 ReceptionistMenu
   -> Enter appointment ID
-  -> AppointmentLCImpl.cancelAppointment
+  -> AppointmentLFImpl.cancelAppointment
       -> UPDATE appointment SET status = 'CANCELLED'
 ```
 
@@ -1489,7 +1489,7 @@ DoctorMenu
   -> Enter appointment ID
   -> Find appointment
   -> Enter diagnosis and treatment notes
-  -> MedicalRecordLCImpl.createMedicalRecord
+  -> MedicalRecordLFImpl.createMedicalRecord
       -> INSERT INTO medical_record
 ```
 
@@ -1501,7 +1501,7 @@ The patient and doctor are taken from the selected appointment.
 DoctorMenu
   -> Enter medical record ID
   -> Enter medicine name, dosage, and duration
-  -> PrescriptionLCImpl.addPrescription
+  -> PrescriptionLFImpl.addPrescription
       -> INSERT INTO prescription
 ```
 
@@ -1516,8 +1516,8 @@ BillingMenu
   -> Enter medicine charge
   -> Enter other charge
   -> Enter bill date
-  -> BillLCImpl.generateBill
-      -> Calculate total
+  -> BillLFImpl.generateBill
+      -> CaLFulate total
       -> INSERT INTO bill
 ```
 
@@ -1530,10 +1530,10 @@ BillingMenu
   -> Select bill
   -> Enter amount, date, and method
   -> BillingService.makePayment
-      -> PaymentLCImpl.recordPayment
+      -> PaymentLFImpl.recordPayment
       -> Sum all payments
       -> Determine status
-      -> BillLCImpl.updateBillStatus
+      -> BillLFImpl.updateBillStatus
 ```
 
 Possible resulting statuses are `UNPAID`, `PARTIAL`, and `PAID`.
@@ -1660,7 +1660,7 @@ Only checks:
 assertTrue(true);
 ```
 
-The test does not exercise the database, menus, services, models, LC implementations, billing rules, appointment rules, or input handling.
+The test does not exercise the database, menus, services, models, LF implementations, billing rules, appointment rules, or input handling.
 
 The current Maven test result is:
 
@@ -1699,17 +1699,17 @@ Services coordinate related operations:
 
 ## Data-access layer
 
-LC interfaces define persistence operations, while `impl` classes execute JDBC SQL:
+LF interfaces define persistence operations, while `impl` classes execute JDBC SQL:
 
 ```text
-PatientLC       -> PatientLCImpl
-DoctorLC        -> DoctorLCImpl
-DepartmentLC    -> DepartmentLCImpl
-AppointmentLC   -> AppointmentLCImpl
-MedicalRecordLC -> MedicalRecordLCImpl
-PrescriptionLC  -> PrescriptionLCImpl
-BillLC          -> BillLCImpl
-PaymentLC       -> PaymentLCImpl
+PatientLF       -> PatientLFImpl
+DoctorLF        -> DoctorLFImpl
+DepartmentLF    -> DepartmentLFImpl
+AppointmentLF   -> AppointmentLFImpl
+MedicalRecordLF -> MedicalRecordLFImpl
+PrescriptionLF  -> PrescriptionLFImpl
+BillLF          -> BillLFImpl
+PaymentLF       -> PaymentLFImpl
 ```
 
 ## Domain/model layer
@@ -1726,7 +1726,7 @@ Patient -> Bill -> Payment
 
 ## Persistence layer
 
-`DBConnection` opens MySQL connections, and each LC implementation runs SQL against the hospital database.
+`DBConnection` opens MySQL connections, and each LF implementation runs SQL against the hospital database.
 
 ---
 
@@ -1742,7 +1742,7 @@ This system models a hospital’s basic operational cycle:
 6. Doctors attach one or more prescriptions to medical records.
 7. Billing staff generate bills for patients.
 8. Billing staff record one or more payments against bills.
-9. The system recalculates payment totals and changes bill status.
+9. The system recaLFulates payment totals and changes bill status.
 10. Patients can view their personal details, appointments, medical records, prescriptions, and complete profile.
 
 The implementation is a direct JDBC console application with simple layered organization and database-backed CRUD operations. It provides the core hospital workflow but does not currently include secure authentication, advanced validation, transactional workflows, or comprehensive automated tests.

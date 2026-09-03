@@ -1,7 +1,7 @@
 package com.hospital.controller;
 
-import com.hospital.localfunctions.DepartmentLC;
-import com.hospital.impl.DepartmentLCImpl;
+import com.hospital.localfunctions.DepartmentLF;
+import com.hospital.impl.DepartmentLFImpl;
 import com.hospital.model.AccountStatus;
 import com.hospital.model.Department;
 import com.hospital.model.Gender;
@@ -15,7 +15,7 @@ public final class AuthMenu {
 
     private static final RegistrationService registrationService =
             new RegistrationService();
-    private static final DepartmentLC departmentLC = new DepartmentLCImpl();
+    private static final DepartmentLF departmentLF = new DepartmentLFImpl();
 
     private AuthMenu() {
     }
@@ -73,16 +73,17 @@ public final class AuthMenu {
             String dob = readDate(scanner, "DOB (yyyy-MM-dd): ");
             String gender = readGender(scanner);
             String phone = readPhone(scanner);
+
+            while (!registrationService.isPatientPhoneAvailable(phone)) {
+                System.out.println("Phone already exists. Try again.");
+                phone = readPhone(scanner);
+            }
+
             String email = readEmail(scanner);
 
             while (!registrationService.isPatientEmailAvailable(email)) {
                 System.out.println("Email already exists. Try again.");
                 email = readEmail(scanner);
-            }
-
-            while (!registrationService.isPatientPhoneAvailable(phone)) {
-                System.out.println("Phone already exists. Try again.");
-                phone = readPhone(scanner);
             }
 
             String address = readAddress(scanner);
@@ -134,7 +135,7 @@ public final class AuthMenu {
             }
 
             TablePrinter.printDepartments(
-                    departmentLC.getAllDepartments()
+                    departmentLF.getAllDepartments()
                             .stream()
                             .filter(department ->
                                     AccountStatus.ACTIVE == department.getStatus())
@@ -145,7 +146,7 @@ public final class AuthMenu {
                     InputHelper.readInt(scanner, "Active department ID: ");
 
             Department department =
-                    departmentLC.getDepartmentById(departmentId);
+                    departmentLF.getDepartmentById(departmentId);
 
             registrationService.registerDoctor(
                     username,

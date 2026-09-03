@@ -1,9 +1,9 @@
 package com.hospital.controller;
 
-import com.hospital.localfunctions.BillLC;
-import com.hospital.impl.BillLCImpl;
-import com.hospital.localfunctions.AppointmentLC;
-import com.hospital.impl.AppointmentLCImpl;
+import com.hospital.localfunctions.BillLF;
+import com.hospital.impl.BillLFImpl;
+import com.hospital.localfunctions.AppointmentLF;
+import com.hospital.impl.AppointmentLFImpl;
 import com.hospital.model.Appointment;
 import com.hospital.model.Bill;
 import com.hospital.model.Payment;
@@ -18,8 +18,8 @@ import java.util.Scanner;
 
 public class BillingMenu {
 
-    private static final BillLC billLC = new BillLCImpl();
-    private static final AppointmentLC appointmentLC = new AppointmentLCImpl();
+    private static final BillLF billLF = new BillLFImpl();
+    private static final AppointmentLF appointmentLF = new AppointmentLFImpl();
     private static final BillingService billingService = new BillingService();
 
     public static void show(Scanner scanner) {
@@ -42,7 +42,7 @@ public class BillingMenu {
                 case "1" -> generateBill(scanner);
                 case "2" -> recordPayment(scanner);
                 case "3" -> viewPaymentHistory(scanner);
-                case "4" -> TablePrinter.printBills(billLC.getAllBills());
+                case "4" -> TablePrinter.printBills(billLF.getAllBills());
                 case "0" -> back = true;
                 default -> System.out.println("Invalid choice.");
             } } catch (IllegalArgumentException | SecurityException exception) {
@@ -54,9 +54,9 @@ public class BillingMenu {
     private static void generateBill(Scanner scanner) {
 
         System.out.println("\nAvailable appointments:");
-        TablePrinter.printAppointments(appointmentLC.getAllAppointments());
+        TablePrinter.printAppointments(appointmentLF.getAllAppointments());
         int appointmentId = InputHelper.readInt(scanner, "Appointment ID: ");
-        Appointment appointment = appointmentLC.getAllAppointments().stream()
+        Appointment appointment = appointmentLF.getAllAppointments().stream()
                 .filter(candidate -> candidate.getAppointmentId() == appointmentId).findFirst().orElse(null);
         if (appointment == null) {
             System.out.println("Invalid appointment ID.");
@@ -69,13 +69,13 @@ public class BillingMenu {
         String billDate = InputHelper.readText(scanner, "Bill date (yyyy-MM-dd): ");
 
         Bill bill = new Bill(0, appointment, consultation, medicine, other, BigDecimal.ZERO, billDate, BillStatus.UNPAID);
-        billLC.generateBill(bill);
+        billLF.generateBill(bill);
     }
 
     private static void recordPayment(Scanner scanner) {
 
         int billId = InputHelper.readInt(scanner, "Bill ID: ");
-        Bill bill = billLC.getBillById(billId);
+        Bill bill = billLF.getBillById(billId);
 
         if (bill == null) {
             System.out.println("No bill found with that ID.");

@@ -11,22 +11,22 @@ import java.util.List;
 
 public class PatientService {
 
-    private final PatientLC     patientLC     = new PatientLCImpl();
-    private final AppointmentLC appointmentLC = new AppointmentLCImpl();
-    private final MedicalRecordLC medicalRecordLC = new MedicalRecordLCImpl();
-    private final PrescriptionLC prescriptionLC = new PrescriptionLCImpl();
-    private final BillLC        billLC        = new BillLCImpl();
-    private final PaymentLC     paymentLC     = new PaymentLCImpl();
+    private final PatientLF     patientLF     = new PatientLFImpl();
+    private final AppointmentLF appointmentLF = new AppointmentLFImpl();
+    private final MedicalRecordLF medicalRecordLF = new MedicalRecordLFImpl();
+    private final PrescriptionLF prescriptionLF = new PrescriptionLFImpl();
+    private final BillLF        billLF        = new BillLFImpl();
+    private final PaymentLF     paymentLF     = new PaymentLFImpl();
 
     // 1. VIEW PERSONAL DETAILS
     public Patient viewPersonalDetails(int patientId) {
         ensurePatientAccess(patientId);
-        return patientLC.getPatientById(patientId);
+        return patientLF.getPatientById(patientId);
     }
 
     /** Prints the patient's own personal details and username. */
     public void viewPersonalDetailsWithCredentials(int patientId, User loggedInUser) {
-        Patient patient = patientLC.getPatientById(patientId);
+        Patient patient = patientLF.getPatientById(patientId);
         if (patient == null) {
             System.out.println("No patient found with ID: " + patientId);
             return;
@@ -44,22 +44,22 @@ public class PatientService {
     // 2. VIEW APPOINTMENTS (ordered by date)
     public List<Appointment> viewAppointments(int patientId) {
         ensurePatientAccess(patientId);
-        return appointmentLC.getAppointmentsByPatient(patientId);
+        return appointmentLF.getAppointmentsByPatient(patientId);
     }
 
     // 3. VIEW MEDICAL RECORDS
     public List<MedicalRecord> viewMedicalRecords(int patientId) {
         ensurePatientAccess(patientId);
-        return medicalRecordLC.getRecordsByPatient(patientId);
+        return medicalRecordLF.getRecordsByPatient(patientId);
     }
 
     // 4. VIEW PRESCRIPTIONS (across ALL of the patient's medical records)
     public List<Prescription> viewPrescriptions(int patientId) {
         ensurePatientAccess(patientId);
         List<Prescription> allPrescriptions = new ArrayList<>();
-        List<MedicalRecord> records = medicalRecordLC.getRecordsByPatient(patientId);
+        List<MedicalRecord> records = medicalRecordLF.getRecordsByPatient(patientId);
         for (MedicalRecord record : records) {
-            allPrescriptions.addAll(prescriptionLC.getPrescriptionsByRecord(record.getRecordId()));
+            allPrescriptions.addAll(prescriptionLF.getPrescriptionsByRecord(record.getRecordId()));
         }
         return allPrescriptions;
     }
@@ -70,7 +70,7 @@ public class PatientService {
      */
     private BigDecimal getTotalPaid(int billId) {
         BigDecimal total = BigDecimal.ZERO;
-        for (Payment p : paymentLC.getPaymentsByBill(billId)) {
+        for (Payment p : paymentLF.getPaymentsByBill(billId)) {
             total = total.add(p.getAmountPaid());
         }
         return total;
@@ -112,7 +112,7 @@ public class PatientService {
 
         // Billing information
         System.out.println("\n--- Billing Information ---");
-        List<Bill> bills = billLC.getBillsByPatient(patientId);
+        List<Bill> bills = billLF.getBillsByPatient(patientId);
         if (bills.isEmpty()) {
             System.out.println("No bills found.");
         } else {
@@ -122,7 +122,7 @@ public class PatientService {
             for (Bill bill : bills) {
                 System.out.println("\n  Payments for Bill #" + bill.getBillId()
                         + " (Total: " + bill.getTotalAmount() + ")");
-                List<Payment> payments = paymentLC.getPaymentsByBill(bill.getBillId());
+                List<Payment> payments = paymentLF.getPaymentsByBill(bill.getBillId());
                 if (payments.isEmpty()) {
                     System.out.println("  No payments recorded yet.");
                 } else {

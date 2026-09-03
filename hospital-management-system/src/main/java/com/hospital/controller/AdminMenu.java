@@ -6,7 +6,7 @@ import com.hospital.model.Department;
 import com.hospital.model.Doctor;
 import com.hospital.model.AccountStatus;
 import com.hospital.model.User;
-import com.hospital.localfunctions.UserLC;
+import com.hospital.localfunctions.UserLF;
 import com.hospital.util.ValidationUtil;
 import com.hospital.service.AdminService;
 import com.hospital.util.TablePrinter;
@@ -16,9 +16,9 @@ import java.util.List;
 
 public class AdminMenu {
 
-    private static final DepartmentLC departmentLC = new DepartmentLCImpl();
-    private static final DoctorLC doctorLC = new DoctorLCImpl();
-    private static final UserLC userLC = new UserLCImpl();
+    private static final DepartmentLF departmentLF = new DepartmentLFImpl();
+    private static final DoctorLF doctorLF = new DoctorLFImpl();
+    private static final UserLF userLF = new UserLFImpl();
     private static final AdminService adminService = new AdminService();
 
     public static void show(Scanner scanner) {
@@ -49,12 +49,12 @@ public class AdminMenu {
                 case "2" -> updateDepartment(scanner);
                 case "3" -> deactivateDepartment(scanner);
                 case "4" -> activateDepartment(scanner);
-                case "5" -> TablePrinter.printDepartments(departmentLC.getAllDepartments());
+                case "5" -> TablePrinter.printDepartments(departmentLF.getAllDepartments());
                 case "6" -> reviewPendingDoctors(scanner);
                 case "7" -> updateDoctor(scanner);
                 case "8" -> deactivateDoctor(scanner);
                 case "9" -> activateDoctor(scanner);
-                case "10" -> TablePrinter.printDoctors(doctorLC.getAllDoctors());
+                case "10" -> TablePrinter.printDoctors(doctorLF.getAllDoctors());
                 case "11" -> adminService.viewHospitalRecords();
                 case "0" -> back = true;
                 default -> System.out.println("Invalid choice.");
@@ -77,7 +77,7 @@ public class AdminMenu {
             }
 
             boolean duplicate = false;
-            for (Department d : departmentLC.getAllDepartments()) {
+            for (Department d : departmentLF.getAllDepartments()) {
                 if (d.getName().equalsIgnoreCase(name)) {
                     duplicate = true;
                     break;
@@ -106,14 +106,14 @@ public class AdminMenu {
         }
 
         Department department = new Department(0, name, description, AccountStatus.ACTIVE);
-        departmentLC.addDepartment(department);
+        departmentLF.addDepartment(department);
         // System.out.println("Department added successfully.");
     }
 
     private static void updateDepartment(Scanner scanner) {
         int id = InputHelper.readInt(scanner, "Department ID to update: ");
 
-        Department existing = departmentLC.getDepartmentById(id);
+        Department existing = departmentLF.getDepartmentById(id);
         if (existing == null) {
             System.out.println("No department found with ID: " + id);
             return;
@@ -128,7 +128,7 @@ public class AdminMenu {
                 return;
             }
 
-            for (Department d : departmentLC.getAllDepartments()) {
+            for (Department d : departmentLF.getAllDepartments()) {
                 if (d.getDepartmentId() != existing.getDepartmentId()
                         && d.getName().equalsIgnoreCase(name)) {
                     System.out.println("A department with this name already exists. Update cancelled.");
@@ -150,29 +150,29 @@ public class AdminMenu {
             existing.setDescription(description);
         }
 
-        departmentLC.updateDepartment(existing);
+        departmentLF.updateDepartment(existing);
         // System.out.println("Department updated successfully.");
     }
 
     private static void deactivateDepartment(Scanner scanner) {
         int id = InputHelper.readInt(scanner, "Department ID to deactivate: ");
-        departmentLC.deactivateDepartment(id);
+        departmentLF.deactivateDepartment(id);
     }
 
     private static void activateDepartment(Scanner scanner) {
         int id = InputHelper.readInt(scanner, "Department ID to activate: ");
-        departmentLC.activateDepartment(id);
+        departmentLF.activateDepartment(id);
     }
 
     private static void reviewPendingDoctors(Scanner scanner) {
-        List<User> pending = userLC.getPendingUsersByRole("DOCTOR");
+        List<User> pending = userLF.getPendingUsersByRole("DOCTOR");
         if (pending.isEmpty()) { System.out.println("No pending doctor registrations."); return; }
         for (User user : pending) {
-            Doctor doctor = doctorLC.getDoctorById(user.getLinkedId());
+            Doctor doctor = doctorLF.getDoctorById(user.getLinkedId());
             System.out.println("Username: " + user.getUsername() + ", Doctor: " + (doctor == null ? "N/A" : doctor.getName()));
             String action = InputHelper.readText(scanner, "Approve (A) or reject (R): ");
-            if ("A".equalsIgnoreCase(action)) { userLC.updateStatus(user.getUsername(), AccountStatus.ACTIVE); if (doctor != null) doctor.setStatus(AccountStatus.ACTIVE); System.out.println("Doctor approved."); }
-            else if ("R".equalsIgnoreCase(action)) { userLC.updateStatus(user.getUsername(), AccountStatus.REJECTED); if (doctor != null) doctor.setStatus(AccountStatus.INACTIVE); System.out.println("Doctor rejected."); }
+            if ("A".equalsIgnoreCase(action)) { userLF.updateStatus(user.getUsername(), AccountStatus.ACTIVE); if (doctor != null) doctor.setStatus(AccountStatus.ACTIVE); System.out.println("Doctor approved."); }
+            else if ("R".equalsIgnoreCase(action)) { userLF.updateStatus(user.getUsername(), AccountStatus.REJECTED); if (doctor != null) doctor.setStatus(AccountStatus.INACTIVE); System.out.println("Doctor rejected."); }
             else System.out.println("Invalid action; left pending.");
         }
     }
@@ -180,7 +180,7 @@ public class AdminMenu {
     private static void updateDoctor(Scanner scanner) {
         int id = InputHelper.readInt(scanner, "Doctor ID to update: ");
 
-        Doctor existing = doctorLC.getDoctorById(id);
+        Doctor existing = doctorLF.getDoctorById(id);
         if (existing == null) {
             System.out.println("No doctor found with ID: " + id);
             return;
@@ -193,7 +193,7 @@ public class AdminMenu {
                 System.out.println("Invalid phone number. Update cancelled.");
                 return;
             }
-            if (doctorLC.getAllDoctors().stream().anyMatch(d -> d.getDoctorId() != existing.getDoctorId()
+            if (doctorLF.getAllDoctors().stream().anyMatch(d -> d.getDoctorId() != existing.getDoctorId()
                     && d.getPhone().replaceAll("[^0-9]", "").equals(phone.replaceAll("[^0-9]", "")))) {
                 System.out.println("A doctor with this phone already exists. Update cancelled.");
                 return;
@@ -209,7 +209,7 @@ public class AdminMenu {
                 return;
             }
 
-            for (Doctor d : doctorLC.getAllDoctors()) {
+            for (Doctor d : doctorLF.getAllDoctors()) {
                 if (d.getDoctorId() != existing.getDoctorId()
                         && d.getEmail().trim().equalsIgnoreCase(email.trim())) {
                     System.out.println("A doctor with this email already exists. Update cancelled.");
@@ -220,17 +220,17 @@ public class AdminMenu {
             existing.setEmail(email);
         }
 
-        doctorLC.updateDoctor(existing);
+        doctorLF.updateDoctor(existing);
         System.out.println("Doctor updated successfully.");
     }
 
     private static void deactivateDoctor(Scanner scanner) {
         int id = InputHelper.readInt(scanner, "Doctor ID to deactivate: ");
-        doctorLC.deactivateDoctor(id);
+        doctorLF.deactivateDoctor(id);
     }
 
     private static void activateDoctor(Scanner scanner) {
         int id = InputHelper.readInt(scanner, "Doctor ID to activate: ");
-        doctorLC.activateDoctor(id);
+        doctorLF.activateDoctor(id);
     }
 }

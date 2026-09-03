@@ -8,7 +8,7 @@ import com.hospital.model.Patient;
 import com.hospital.model.AccountStatus;
 import com.hospital.model.AppointmentStatus;
 import com.hospital.model.User;
-import com.hospital.localfunctions.UserLC;
+import com.hospital.localfunctions.UserLF;
 import com.hospital.util.TablePrinter;
 import com.hospital.util.ValidationUtil;
 
@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 
 public class ReceptionistMenu {
 
-    private static final PatientLC patientLC = new PatientLCImpl();
-    private static final DoctorLC doctorLC = new DoctorLCImpl();
-    private static final AppointmentLC appointmentLC = new AppointmentLCImpl();
-    private static final UserLC userLC = new UserLCImpl();
+    private static final PatientLF patientLF = new PatientLFImpl();
+    private static final DoctorLF doctorLF = new DoctorLFImpl();
+    private static final AppointmentLF appointmentLF = new AppointmentLFImpl();
+    private static final UserLF userLF = new UserLFImpl();
 
     public static void show(Scanner scanner) {
 
@@ -52,11 +52,11 @@ public class ReceptionistMenu {
                 case "4" -> activatePatient(scanner);
                 case "5" -> bookAppointment(scanner);
                 case "6" -> cancelAppointment(scanner);
-                case "7" -> TablePrinter.printAppointments(appointmentLC.getTodaysAppointments());
+                case "7" -> TablePrinter.printAppointments(appointmentLF.getTodaysAppointments());
                 case "8" -> viewPatientAppointments(scanner);
-                case "9" -> TablePrinter.printPatients(patientLC.getAllPatients().stream()
+                case "9" -> TablePrinter.printPatients(patientLF.getAllPatients().stream()
                     .filter(patient -> AccountStatus.ACTIVE == patient.getStatus()).collect(Collectors.toList()));
-                case "10" -> TablePrinter.printAppointments(appointmentLC.getAllAppointments());
+                case "10" -> TablePrinter.printAppointments(appointmentLF.getAllAppointments());
                 case "0" -> back = true;
                 default -> System.out.println("Invalid choice.");
             } } catch (IllegalArgumentException | SecurityException exception) {
@@ -66,23 +66,23 @@ public class ReceptionistMenu {
     }
 
     private static void reviewPendingPatients(Scanner scanner) {
-        List<User> pending = userLC.getPendingUsersByRole("PATIENT");
+        List<User> pending = userLF.getPendingUsersByRole("PATIENT");
         if (pending.isEmpty()) { System.out.println("No pending patient registrations."); return; }
         for (User user : pending) {
-            Patient patient = patientLC.getPatientById(user.getLinkedId());
+            Patient patient = patientLF.getPatientById(user.getLinkedId());
             System.out.println("Username: " + user.getUsername() + ", Patient: " + (patient == null ? "N/A" : patient.getName()));
             String action = InputHelper.readText(scanner, "Approve (A) or reject (R): ");
-            if ("A".equalsIgnoreCase(action)) { userLC.updateStatus(user.getUsername(), AccountStatus.ACTIVE); if (patient != null) patient.setStatus(AccountStatus.ACTIVE); System.out.println("Patient approved."); }
-            else if ("R".equalsIgnoreCase(action)) { userLC.updateStatus(user.getUsername(), AccountStatus.REJECTED); if (patient != null) patientLC.removePatient(patient.getPatientId()); System.out.println("Patient rejected and removed."); }
+            if ("A".equalsIgnoreCase(action)) { userLF.updateStatus(user.getUsername(), AccountStatus.ACTIVE); if (patient != null) patient.setStatus(AccountStatus.ACTIVE); System.out.println("Patient approved."); }
+            else if ("R".equalsIgnoreCase(action)) { userLF.updateStatus(user.getUsername(), AccountStatus.REJECTED); if (patient != null) patientLF.removePatient(patient.getPatientId()); System.out.println("Patient rejected and removed."); }
             else System.out.println("Invalid action; left pending.");
         }
     }
 
     private static void updatePatient(Scanner scanner) {
-        TablePrinter.printPatients(patientLC.getAllPatients());
+        TablePrinter.printPatients(patientLF.getAllPatients());
         int id = InputHelper.readInt(scanner, "Patient ID to update: ");
 
-        Patient existing = patientLC.getPatientById(id);
+        Patient existing = patientLF.getPatientById(id);
         if (existing == null) {
             System.out.println("No patient found with ID: " + id);
             return;
@@ -94,7 +94,7 @@ public class ReceptionistMenu {
                 System.out.println("Invalid phone number. Update cancelled.");
                 return;
             }
-            if (patientLC.getAllPatients().stream().anyMatch(p -> p.getPatientId() != existing.getPatientId()
+            if (patientLF.getAllPatients().stream().anyMatch(p -> p.getPatientId() != existing.getPatientId()
                     && p.getPhone().replaceAll("[^0-9]", "").equals(phone.replaceAll("[^0-9]", "")))) {
                 System.out.println("A patient with this phone already exists. Update cancelled.");
                 return;
@@ -108,7 +108,7 @@ public class ReceptionistMenu {
                 System.out.println("Invalid email format. Update cancelled.");
                 return;
             }
-            if (patientLC.getAllPatients().stream().anyMatch(p -> p.getPatientId() != existing.getPatientId()
+            if (patientLF.getAllPatients().stream().anyMatch(p -> p.getPatientId() != existing.getPatientId()
                     && p.getEmail().trim().equalsIgnoreCase(email.trim()))) {
                 System.out.println("A patient with this email already exists. Update cancelled.");
                 return;
@@ -121,32 +121,32 @@ public class ReceptionistMenu {
             existing.setAddress(address);
         }
 
-        patientLC.updatePatient(existing);
+        patientLF.updatePatient(existing);
     }
 
     private static void deactivatePatient(Scanner scanner) {
-        TablePrinter.printPatients(patientLC.getAllPatients());
+        TablePrinter.printPatients(patientLF.getAllPatients());
         int id = InputHelper.readInt(scanner, "Patient ID to deactivate: ");
-        patientLC.deactivatePatient(id);
+        patientLF.deactivatePatient(id);
     }
 
     private static void activatePatient(Scanner scanner) {
-        TablePrinter.printPatients(patientLC.getAllPatients());
+        TablePrinter.printPatients(patientLF.getAllPatients());
         int id = InputHelper.readInt(scanner, "Patient ID to activate: ");
-        patientLC.activatePatient(id);
+        patientLF.activatePatient(id);
     }
 
     private static void bookAppointment(Scanner scanner) {
 
         // Bug fix: show ACTIVE patients only so inactive ones cannot be selected
         System.out.println("\nAvailable patients (ACTIVE only):");
-        List<Patient> activePatients = patientLC.getAllPatients().stream()
+        List<Patient> activePatients = patientLF.getAllPatients().stream()
                 .filter(p -> AccountStatus.ACTIVE == p.getStatus())
                 .collect(Collectors.toList());
         TablePrinter.printPatients(activePatients);
 
         int patientId = InputHelper.readInt(scanner, "Patient ID: ");
-        Patient patient = patientLC.getPatientById(patientId);
+        Patient patient = patientLF.getPatientById(patientId);
         if (patient == null) {
             System.out.println("Invalid patient ID.");
             return;
@@ -160,13 +160,13 @@ public class ReceptionistMenu {
 
         // Show ACTIVE doctors only
         System.out.println("\nAvailable doctors (ACTIVE only):");
-        List<Doctor> activeDoctors = doctorLC.getAllDoctors().stream()
+        List<Doctor> activeDoctors = doctorLF.getAllDoctors().stream()
                 .filter(d -> AccountStatus.ACTIVE == d.getStatus())
                 .collect(Collectors.toList());
         TablePrinter.printDoctors(activeDoctors);
 
         int doctorId = InputHelper.readInt(scanner, "Doctor ID: ");
-        Doctor doctor = doctorLC.getDoctorById(doctorId);
+        Doctor doctor = doctorLF.getDoctorById(doctorId);
         if (doctor == null) {
             System.out.println("Invalid doctor ID.");
             return;
@@ -199,24 +199,24 @@ public class ReceptionistMenu {
         }
 
         Appointment appointment = new Appointment(0, patient, doctor, date, time, AppointmentStatus.SCHEDULED);
-        appointmentLC.bookAppointment(appointment);
+        appointmentLF.bookAppointment(appointment);
     }
 
     private static void cancelAppointment(Scanner scanner) {
         // UX: show all appointments first so receptionist can see valid IDs
         System.out.println("\nAll appointments:");
-        TablePrinter.printAppointments(appointmentLC.getAllAppointments());
+        TablePrinter.printAppointments(appointmentLF.getAllAppointments());
         int id = InputHelper.readInt(scanner, "Appointment ID to cancel: ");
-        appointmentLC.cancelAppointment(id);
+        appointmentLF.cancelAppointment(id);
     }
 
     private static void viewPatientAppointments(Scanner scanner) {
         // UX: show patient list first so receptionist can see valid IDs
         System.out.println("\nAll patients:");
-        TablePrinter.printPatients(patientLC.getAllPatients().stream()
+        TablePrinter.printPatients(patientLF.getAllPatients().stream()
             .filter(patient -> AccountStatus.ACTIVE == patient.getStatus()).collect(Collectors.toList()));
         int patientId = InputHelper.readInt(scanner, "Patient ID: ");
-        List<Appointment> appointments = appointmentLC.getAppointmentsByPatient(patientId);
+        List<Appointment> appointments = appointmentLF.getAppointmentsByPatient(patientId);
         TablePrinter.printAppointments(appointments);
     }
 }

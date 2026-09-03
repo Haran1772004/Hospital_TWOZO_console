@@ -1,9 +1,9 @@
 package com.hospital.service;
 
-import com.hospital.localfunctions.BillLC;
-import com.hospital.localfunctions.PaymentLC;
-import com.hospital.impl.BillLCImpl;
-import com.hospital.impl.PaymentLCImpl;
+import com.hospital.localfunctions.BillLF;
+import com.hospital.localfunctions.PaymentLF;
+import com.hospital.impl.BillLFImpl;
+import com.hospital.impl.PaymentLFImpl;
 import com.hospital.model.Bill;
 import com.hospital.model.Payment;
 import com.hospital.util.TablePrinter;
@@ -16,13 +16,13 @@ import java.util.List;
 
 public class BillingService {
 
-    private final BillLC billLC = new BillLCImpl();
-    private final PaymentLC paymentLC = new PaymentLCImpl();
+    private final BillLF billLF = new BillLFImpl();
+    private final PaymentLF paymentLF = new PaymentLFImpl();
 
-    // Records a payment against a bill, then recalculates and updates that bill's status
+    // Records a payment against a bill, then recaLFulates and updates that bill's status
     public void makePayment(Payment payment) {
 
-        Bill bill = billLC.getBillById(payment.getBillId());
+        Bill bill = billLF.getBillById(payment.getBillId());
 
         if (bill == null) {
             System.out.println("No bill found with ID: " + payment.getBillId());
@@ -46,7 +46,7 @@ public class BillingService {
         }
 
         // 1. Save the payment row
-        paymentLC.recordPayment(payment);
+        paymentLF.recordPayment(payment);
 
         // 2. Sum ALL payments made so far against this bill (not just this one)
         BigDecimal totalPaid = getTotalPaid(bill.getBillId());
@@ -61,7 +61,7 @@ public class BillingService {
             newStatus = "UNPAID";
         }
 
-        billLC.updateBillStatus(bill.getBillId(), newStatus);
+        billLF.updateBillStatus(bill.getBillId(), newStatus);
 
         System.out.println("Bill " + bill.getBillId() + " status updated to: " + newStatus
                 + " (Paid so far: " + totalPaid + " / " + bill.getTotalAmount() + ")");
@@ -70,7 +70,7 @@ public class BillingService {
     // Sums every payment ever recorded against a given bill
     public BigDecimal getTotalPaid(int billId) {
 
-        List<Payment> payments = paymentLC.getPaymentsByBill(billId);
+        List<Payment> payments = paymentLF.getPaymentsByBill(billId);
 
         BigDecimal total = BigDecimal.ZERO;
         for (Payment p : payments) {
@@ -82,7 +82,7 @@ public class BillingService {
     // VIEW PAYMENT HISTORY for one bill (payments + running total + remaining balance)
     public void viewPaymentHistory(int billId) {
 
-        Bill bill = billLC.getBillById(billId);
+        Bill bill = billLF.getBillById(billId);
         if (bill == null) {
             System.out.println("No bill found with ID: " + billId);
             return;
@@ -91,7 +91,7 @@ public class BillingService {
         System.out.println("========== PAYMENT HISTORY - Bill #" + billId + " ==========");
         TablePrinter.printBill(bill);
 
-        List<Payment> payments = paymentLC.getPaymentsByBill(billId);
+        List<Payment> payments = paymentLF.getPaymentsByBill(billId);
         System.out.println("\nPayments:");
         TablePrinter.printPayments(payments);
 

@@ -1,15 +1,15 @@
 package com.hospital;
 
-import com.hospital.localfunctions.PatientLC;
-import com.hospital.localfunctions.DoctorLC;
-import com.hospital.localfunctions.UserLC;
-import com.hospital.impl.PatientLCImpl;
-import com.hospital.impl.DoctorLCImpl;
-import com.hospital.impl.BillLCImpl;
-import com.hospital.impl.UserLCImpl;
-import com.hospital.impl.AppointmentLCImpl;
-import com.hospital.impl.MedicalRecordLCImpl;
-import com.hospital.impl.PrescriptionLCImpl;
+import com.hospital.localfunctions.PatientLF;
+import com.hospital.localfunctions.DoctorLF;
+import com.hospital.localfunctions.UserLF;
+import com.hospital.impl.PatientLFImpl;
+import com.hospital.impl.DoctorLFImpl;
+import com.hospital.impl.BillLFImpl;
+import com.hospital.impl.UserLFImpl;
+import com.hospital.impl.AppointmentLFImpl;
+import com.hospital.impl.MedicalRecordLFImpl;
+import com.hospital.impl.PrescriptionLFImpl;
 import com.hospital.model.Bill;
 import com.hospital.model.Department;
 import com.hospital.model.Appointment;
@@ -46,21 +46,21 @@ public class SecurityAndValidationTest extends TestCase {
     }
 
     public void testDuplicateUsernameAndPatientPhoneRejected() {
-        UserLC userLC = new UserLCImpl();
+        UserLF userLF = new UserLFImpl();
         String username = "unique_" + System.nanoTime();
-        userLC.addUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 1));
+        userLF.addUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 1));
         try {
-            userLC.addUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 2));
+            userLF.addUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 2));
             fail("Duplicate username should be rejected");
         } catch (IllegalArgumentException expected) { }
 
-        PatientLC patientLC = new PatientLCImpl();
+        PatientLF patientLF = new PatientLFImpl();
         String suffix = Long.toHexString(System.nanoTime());
         Patient patient = new Patient(0, "Alex Smith", "1990-01-01", "MALE", "555" + suffix.substring(suffix.length() - 7),
                 "alex" + suffix + "@example.com", "Address", "ACTIVE");
-        patientLC.addPatient(patient);
+        patientLF.addPatient(patient);
         try {
-            patientLC.addPatient(new Patient(0, "Another Person", "1991-01-01", "FEMALE", patient.getPhone(),
+            patientLF.addPatient(new Patient(0, "Another Person", "1991-01-01", "FEMALE", patient.getPhone(),
                     "other" + suffix + "@example.com", "Address", "ACTIVE"));
             fail("Duplicate patient phone should be rejected");
         } catch (IllegalArgumentException expected) { }
@@ -73,7 +73,7 @@ public class SecurityAndValidationTest extends TestCase {
                 "1990-05-20", "FEMALE", "555010" + (System.currentTimeMillis() % 1000),
                 "jane" + suffix + "@example.com", "Main Street");
         assertTrue(patient.getPatientId() > 0);
-        User user = new UserLCImpl().getUserByUsername("patient_" + suffix);
+        User user = new UserLFImpl().getUserByUsername("patient_" + suffix);
         assertNotNull(user);
         assertEquals(patient.getPatientId(), user.getLinkedId());
         assertTrue(PasswordUtil.matches("Strong1!", user.getPassword()));
@@ -98,23 +98,23 @@ public class SecurityAndValidationTest extends TestCase {
     }
 
     public void testDoctorDuplicatePhoneRejected() {
-        DoctorLCAssertions.addUniqueDoctor();
+        DoctorLFAssertions.addUniqueDoctor();
     }
 
     public void testBillingRejectsOverpaymentAndTransitionsStatus() {
         Patient patient = new Patient(0, "Bill Patient", "1980-01-01", "FEMALE", "5550199999",
                 "bill" + System.nanoTime() + "@example.com", "Address", "ACTIVE");
-        new PatientLCImpl().addPatient(patient);
+        new PatientLFImpl().addPatient(patient);
         Doctor doctor = new Doctor(0, "Bill Doctor", "Medicine", "5550198888",
             "billdoctor" + System.nanoTime() + "@example.com",
             new Department(1, "Billing", "Care", "ACTIVE"), "ACTIVE");
-        new DoctorLCImpl().addDoctor(doctor);
+        new DoctorLFImpl().addDoctor(doctor);
         Appointment appointment = new Appointment(0, patient, doctor, "2099-09-03", "2:00 PM", AppointmentStatus.SCHEDULED);
-        new com.hospital.impl.AppointmentLCImpl().bookAppointment(appointment);
+        new com.hospital.impl.AppointmentLFImpl().bookAppointment(appointment);
         Bill bill = new Bill(0, patient, new BigDecimal("100"), BigDecimal.ZERO, BigDecimal.ZERO,
                 BigDecimal.ZERO, "2026-09-03", "UNPAID");
         bill.setAppointment(appointment);
-        new BillLCImpl().generateBill(bill);
+        new BillLFImpl().generateBill(bill);
         BillingService billingService = new BillingService();
         billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("40"), "2026-09-03", "CASH"));
         assertEquals(BillStatus.PARTIAL, bill.getStatus());
@@ -127,44 +127,44 @@ public class SecurityAndValidationTest extends TestCase {
     public void testMedicalRecordPrescriptionAndTodayValidation() {
         Patient patient = new Patient(0, "Record Patient", "1980-01-01", "FEMALE", "5550177777",
                 "record" + System.nanoTime() + "@example.com", "Address", "ACTIVE");
-        new PatientLCImpl().addPatient(patient);
+        new PatientLFImpl().addPatient(patient);
         Doctor doctor = new Doctor(0, "Record Doctor", "Medicine", "5550176666",
                 "recorddoctor" + System.nanoTime() + "@example.com",
                 new Department(1, "Records", "Care", "ACTIVE"), "ACTIVE");
-        new DoctorLCImpl().addDoctor(doctor);
+        new DoctorLFImpl().addDoctor(doctor);
         Appointment appointment = new Appointment(0, patient, doctor, "2099-09-03", "2:00 PM", AppointmentStatus.SCHEDULED);
-        new AppointmentLCImpl().bookAppointment(appointment);
+        new AppointmentLFImpl().bookAppointment(appointment);
 
-        MedicalRecordLCAssertions.assertInvalidRecordDate(appointment, patient, doctor);
+        MedicalRecordLFAssertions.assertInvalidRecordDate(appointment, patient, doctor);
         MedicalRecord record = new MedicalRecord(0, appointment, patient, doctor, "Diagnosis", "Notes", LocalDate.now().toString());
-        new MedicalRecordLCImpl().createMedicalRecord(record);
+        new MedicalRecordLFImpl().createMedicalRecord(record);
         assertEquals(AppointmentStatus.FINISHED, appointment.getStatus());
 
         try {
-            new PrescriptionLCImpl().addPrescription(new Prescription(0, record.getRecordId(), "", "once", "5 days"));
+            new PrescriptionLFImpl().addPrescription(new Prescription(0, record.getRecordId(), "", "once", "5 days"));
             fail("Blank medicine name should be rejected");
         } catch (IllegalArgumentException expected) { }
     }
 
-    private static final class MedicalRecordLCAssertions {
+    private static final class MedicalRecordLFAssertions {
         static void assertInvalidRecordDate(Appointment appointment, Patient patient, Doctor doctor) {
             try {
-                new MedicalRecordLCImpl().createMedicalRecord(new MedicalRecord(0, appointment, patient, doctor,
+                new MedicalRecordLFImpl().createMedicalRecord(new MedicalRecord(0, appointment, patient, doctor,
                     "Diagnosis", "Notes", LocalDate.now().minusDays(1).toString()));
                 fail("Previous record date should be rejected");
             } catch (IllegalArgumentException expected) { }
         }
     }
 
-    private static final class DoctorLCAssertions {
+    private static final class DoctorLFAssertions {
         static void addUniqueDoctor() {
-            DoctorLC LC = new DoctorLCImpl();
+            DoctorLF LF = new DoctorLFImpl();
             String suffix = Long.toHexString(System.nanoTime());
             Doctor doctor = new Doctor(0, "Dr Alex", "Surgery", "5550188888",
                     "dr" + suffix + "@example.com", new Department(1, "Surgery", "Care", "ACTIVE"), "ACTIVE");
-            LC.addDoctor(doctor);
+            LF.addDoctor(doctor);
             try {
-                LC.addDoctor(new Doctor(0, "Dr Other", "Medicine", doctor.getPhone(),
+                LF.addDoctor(new Doctor(0, "Dr Other", "Medicine", doctor.getPhone(),
                         "other" + suffix + "@example.com", doctor.getDepartment(), "ACTIVE"));
                 fail("Duplicate doctor phone should be rejected");
             } catch (IllegalArgumentException expected) { }

@@ -3,19 +3,19 @@ package com.hospital.service;
 import com.hospital.exception.AuthenticationException;
 import com.hospital.model.User;
 import com.hospital.model.AccountStatus;
-import com.hospital.localfunctions.UserLC;
-import com.hospital.impl.UserLCImpl;
+import com.hospital.localfunctions.UserLF;
+import com.hospital.impl.UserLFImpl;
 import com.hospital.util.PasswordUtil;
 
 public final class AuthService {
     private static User currentUser;
-    private static final UserLC userLC = new UserLCImpl();
+    private static final UserLF userLF = new UserLFImpl();
 
     private AuthService() {
     }
 
     public static User login(String username, String password) {
-        User user = userLC.getUserByUsername(username);
+        User user = userLF.getUserByUsername(username);
         if (user == null || !PasswordUtil.matches(password, user.getPassword())) {
             throw new AuthenticationException("Invalid username or password.");
         }
