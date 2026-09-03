@@ -27,8 +27,8 @@ The application follows a layered structure:
 ```text
 User
   -> Controller menus
-      -> Services and DAO interfaces
-          -> JDBC DAO implementations
+      -> Services and LC interfaces
+          -> JDBC LC implementations
               -> DBConnection
                   -> MySQL database
 ```
@@ -73,27 +73,27 @@ There is no web framework, REST API, ORM, GUI, Spring configuration, or visible 
 - `src/main/java/com/hospital/controller/BillingMenu.java`
 - `src/main/java/com/hospital/controller/InputHelper.java`
 
-### DAO interfaces
+### LC interfaces
 
-- `src/main/java/com/hospital/dao/PatientDAO.java`
-- `src/main/java/com/hospital/dao/DoctorDAO.java`
-- `src/main/java/com/hospital/dao/DepartmentDAO.java`
-- `src/main/java/com/hospital/dao/AppointmentDAO.java`
-- `src/main/java/com/hospital/dao/MedicalRecordDAO.java`
-- `src/main/java/com/hospital/dao/PrescriptionDAO.java`
-- `src/main/java/com/hospital/dao/BillDAO.java`
-- `src/main/java/com/hospital/dao/PaymentDAO.java`
+- `src/main/java/com/hospital/LC/PatientLC.java`
+- `src/main/java/com/hospital/LC/DoctorLC.java`
+- `src/main/java/com/hospital/LC/DepartmentLC.java`
+- `src/main/java/com/hospital/LC/AppointmentLC.java`
+- `src/main/java/com/hospital/LC/MedicalRecordLC.java`
+- `src/main/java/com/hospital/LC/PrescriptionLC.java`
+- `src/main/java/com/hospital/LC/BillLC.java`
+- `src/main/java/com/hospital/LC/PaymentLC.java`
 
-### DAO implementations
+### LC implementations
 
-- `src/main/java/com/hospital/impl/PatientDAOImpl.java`
-- `src/main/java/com/hospital/impl/DoctorDAOImpl.java`
-- `src/main/java/com/hospital/impl/DepartmentDAOImpl.java`
-- `src/main/java/com/hospital/impl/AppointmentDAOImpl.java`
-- `src/main/java/com/hospital/impl/MedicalRecordDAOImpl.java`
-- `src/main/java/com/hospital/impl/PrescriptionDAOImpl.java`
-- `src/main/java/com/hospital/impl/BillDAOImpl.java`
-- `src/main/java/com/hospital/impl/PaymentDAOImpl.java`
+- `src/main/java/com/hospital/impl/PatientLCImpl.java`
+- `src/main/java/com/hospital/impl/DoctorLCImpl.java`
+- `src/main/java/com/hospital/impl/DepartmentLCImpl.java`
+- `src/main/java/com/hospital/impl/AppointmentLCImpl.java`
+- `src/main/java/com/hospital/impl/MedicalRecordLCImpl.java`
+- `src/main/java/com/hospital/impl/PrescriptionLCImpl.java`
+- `src/main/java/com/hospital/impl/BillLCImpl.java`
+- `src/main/java/com/hospital/impl/PaymentLCImpl.java`
 
 ### Model classes
 
@@ -149,7 +149,7 @@ The method calls `MainMenu.start()` and begins the application.
 
 # 5. Controller Layer
 
-The controller layer implements the console user interface. Controllers display menus, read input, construct model objects, and call services or DAOs.
+The controller layer implements the console user interface. Controllers display menus, read input, construct model objects, and call services or LCs.
 
 ## 5.1 MainMenu
 
@@ -187,15 +187,15 @@ File: `src/main/java/com/hospital/controller/AdminMenu.java`
 ### Fields
 
 ```java
-private static final DepartmentDAO departmentDAO
-private static final DoctorDAO doctorDAO
+private static final DepartmentLC departmentLC
+private static final DoctorLC doctorLC
 private static final AdminService adminService
 ```
 
 Concrete objects created:
 
-- `DepartmentDAOImpl`
-- `DoctorDAOImpl`
+- `DepartmentLCImpl`
+- `DoctorLCImpl`
 - `AdminService`
 
 ### Public method
@@ -262,16 +262,16 @@ File: `src/main/java/com/hospital/controller/ReceptionistMenu.java`
 ### Fields
 
 ```java
-private static final PatientDAO patientDAO
-private static final DoctorDAO doctorDAO
-private static final AppointmentDAO appointmentDAO
+private static final PatientLC patientLC
+private static final DoctorLC doctorLC
+private static final AppointmentLC appointmentLC
 ```
 
 Concrete implementations:
 
-- `PatientDAOImpl`
-- `DoctorDAOImpl`
-- `AppointmentDAOImpl`
+- `PatientLCImpl`
+- `DoctorLCImpl`
+- `AppointmentLCImpl`
 
 ### Public method
 
@@ -307,7 +307,7 @@ Loads a patient by ID and allows phone, email, and address updates. Blank input 
 private static void bookAppointment(Scanner scanner)
 ```
 
-Displays patients and doctors, validates both IDs, reads date and time, creates a `SCHEDULED` appointment, and calls the appointment DAO.
+Displays patients and doctors, validates both IDs, reads date and time, creates a `SCHEDULED` appointment, and calls the appointment LC.
 
 ```java
 private static void cancelAppointment(Scanner scanner)
@@ -328,10 +328,10 @@ File: `src/main/java/com/hospital/controller/DoctorMenu.java`
 ### Fields
 
 ```java
-private static final AppointmentDAO appointmentDAO
-private static final PatientDAO patientDAO
-private static final MedicalRecordDAO medicalRecordDAO
-private static final PrescriptionDAO prescriptionDAO
+private static final AppointmentLC appointmentLC
+private static final PatientLC patientLC
+private static final MedicalRecordLC medicalRecordLC
+private static final PrescriptionLC prescriptionLC
 ```
 
 ### Public method
@@ -415,8 +415,8 @@ File: `src/main/java/com/hospital/controller/BillingMenu.java`
 ### Fields
 
 ```java
-private static final BillDAO billDAO
-private static final PatientDAO patientDAO
+private static final BillLC billLC
+private static final PatientLC patientLC
 private static final BillingService billingService
 ```
 
@@ -739,15 +739,15 @@ A payment belongs to a bill through `billId`.
 
 ---
 
-# 7. DAO Interfaces
+# 7. LC Interfaces
 
-The DAO layer defines persistence contracts. Each interface has one JDBC implementation in the `impl` package.
+The LC layer defines persistence contracts. Each interface has one JDBC implementation in the `impl` package.
 
-## PatientDAO
+## PatientLC
 
-File: `src/main/java/com/hospital/dao/PatientDAO.java`
+File: `src/main/java/com/hospital/LC/PatientLC.java`
 
-Implemented by `PatientDAOImpl`.
+Implemented by `PatientLCImpl`.
 
 ```java
 void addPatient(Patient patient);
@@ -757,11 +757,11 @@ Patient getPatientById(int patientId);
 List<Patient> getAllPatients();
 ```
 
-## DoctorDAO
+## DoctorLC
 
-File: `src/main/java/com/hospital/dao/DoctorDAO.java`
+File: `src/main/java/com/hospital/LC/DoctorLC.java`
 
-Implemented by `DoctorDAOImpl`.
+Implemented by `DoctorLCImpl`.
 
 ```java
 void addDoctor(Doctor doctor);
@@ -771,11 +771,11 @@ Doctor getDoctorById(int doctorId);
 List<Doctor> getAllDoctors();
 ```
 
-## DepartmentDAO
+## DepartmentLC
 
-File: `src/main/java/com/hospital/dao/DepartmentDAO.java`
+File: `src/main/java/com/hospital/LC/DepartmentLC.java`
 
-Implemented by `DepartmentDAOImpl`.
+Implemented by `DepartmentLCImpl`.
 
 ```java
 void addDepartment(Department department);
@@ -785,11 +785,11 @@ Department getDepartmentById(int departmentId);
 List<Department> getAllDepartments();
 ```
 
-## AppointmentDAO
+## AppointmentLC
 
-File: `src/main/java/com/hospital/dao/AppointmentDAO.java`
+File: `src/main/java/com/hospital/LC/AppointmentLC.java`
 
-Implemented by `AppointmentDAOImpl`.
+Implemented by `AppointmentLCImpl`.
 
 ```java
 void bookAppointment(Appointment appointment);
@@ -801,11 +801,11 @@ List<Appointment> getTodaysAppointments();
 List<Appointment> getAllAppointments();
 ```
 
-## MedicalRecordDAO
+## MedicalRecordLC
 
-File: `src/main/java/com/hospital/dao/MedicalRecordDAO.java`
+File: `src/main/java/com/hospital/LC/MedicalRecordLC.java`
 
-Implemented by `MedicalRecordDAOImpl`.
+Implemented by `MedicalRecordLCImpl`.
 
 ```java
 void createMedicalRecord(MedicalRecord record);
@@ -815,22 +815,22 @@ List<MedicalRecord> getRecordsByDoctor(int doctorId);
 List<MedicalRecord> getAllRecords();
 ```
 
-## PrescriptionDAO
+## PrescriptionLC
 
-File: `src/main/java/com/hospital/dao/PrescriptionDAO.java`
+File: `src/main/java/com/hospital/LC/PrescriptionLC.java`
 
-Implemented by `PrescriptionDAOImpl`.
+Implemented by `PrescriptionLCImpl`.
 
 ```java
 void addPrescription(Prescription prescription);
 List<Prescription> getPrescriptionsByRecord(int recordId);
 ```
 
-## BillDAO
+## BillLC
 
-File: `src/main/java/com/hospital/dao/BillDAO.java`
+File: `src/main/java/com/hospital/LC/BillLC.java`
 
-Implemented by `BillDAOImpl`.
+Implemented by `BillLCImpl`.
 
 ```java
 void generateBill(Bill bill);
@@ -840,11 +840,11 @@ List<Bill> getBillsByPatient(int patientId);
 List<Bill> getAllBills();
 ```
 
-## PaymentDAO
+## PaymentLC
 
-File: `src/main/java/com/hospital/dao/PaymentDAO.java`
+File: `src/main/java/com/hospital/LC/PaymentLC.java`
 
-Implemented by `PaymentDAOImpl`.
+Implemented by `PaymentLCImpl`.
 
 ```java
 void recordPayment(Payment payment);
@@ -852,19 +852,19 @@ List<Payment> getPaymentsByBill(int billId);
 List<Payment> getAllPayments();
 ```
 
-There is no DAO inheritance hierarchy beyond each implementation implementing its matching interface.
+There is no LC inheritance hierarchy beyond each implementation implementing its matching interface.
 
 ---
 
-# 8. DAO Implementation Layer
+# 8. LC Implementation Layer
 
-All DAO implementation classes use JDBC, `DBConnection`, `PreparedStatement`, `ResultSet`, and try-with-resources. SQL exceptions are printed to the console. Retrieval operations generally return `null` for a missing single object or an empty list for no collection results.
+All LC implementation classes use JDBC, `DBConnection`, `PreparedStatement`, `ResultSet`, and try-with-resources. SQL exceptions are printed to the console. Retrieval operations generally return `null` for a missing single object or an empty list for no collection results.
 
-## 8.1 DepartmentDAOImpl
+## 8.1 DepartmentLCImpl
 
-File: `src/main/java/com/hospital/impl/DepartmentDAOImpl.java`
+File: `src/main/java/com/hospital/impl/DepartmentLCImpl.java`
 
-Implements `DepartmentDAO`.
+Implements `DepartmentLC`.
 
 ### Database table
 
@@ -889,11 +889,11 @@ status
 - `getDepartmentById`: selects one department
 - `getAllDepartments`: selects all departments
 
-## 8.2 PatientDAOImpl
+## 8.2 PatientLCImpl
 
-File: `src/main/java/com/hospital/impl/PatientDAOImpl.java`
+File: `src/main/java/com/hospital/impl/PatientLCImpl.java`
 
-Implements `PatientDAO`.
+Implements `PatientLC`.
 
 ### Database table
 
@@ -922,11 +922,11 @@ status
 - `getPatientById`: selects one patient
 - `getAllPatients`: selects all patients
 
-## 8.3 DoctorDAOImpl
+## 8.3 DoctorLCImpl
 
-File: `src/main/java/com/hospital/impl/DoctorDAOImpl.java`
+File: `src/main/java/com/hospital/impl/DoctorLCImpl.java`
 
-Implements `DoctorDAO`.
+Implements `DoctorLC`.
 
 ### Database tables
 
@@ -947,11 +947,11 @@ A null department causes `IllegalArgumentException` during add/update.
 
 The doctor retrieval SQL uses an inner `JOIN`, so a doctor must have a matching department row to be returned.
 
-## 8.4 AppointmentDAOImpl
+## 8.4 AppointmentLCImpl
 
-File: `src/main/java/com/hospital/impl/AppointmentDAOImpl.java`
+File: `src/main/java/com/hospital/impl/AppointmentLCImpl.java`
 
-Implements `AppointmentDAO`.
+Implements `AppointmentLC`.
 
 ### Constant field
 
@@ -995,11 +995,11 @@ Appointment
 
 Cancelled appointments do not block a doctor’s time slot because availability only checks `SCHEDULED` rows.
 
-## 8.5 MedicalRecordDAOImpl
+## 8.5 MedicalRecordLCImpl
 
-File: `src/main/java/com/hospital/impl/MedicalRecordDAOImpl.java`
+File: `src/main/java/com/hospital/impl/MedicalRecordLCImpl.java`
 
-Implements `MedicalRecordDAO`.
+Implements `MedicalRecordLC`.
 
 ### Constant field
 
@@ -1044,11 +1044,11 @@ MedicalRecord
 - `getRecordsByDoctor`: retrieves records by doctor, newest record date first
 - `getAllRecords`: retrieves all records, newest record date first
 
-## 8.6 PrescriptionDAOImpl
+## 8.6 PrescriptionLCImpl
 
-File: `src/main/java/com/hospital/impl/PrescriptionDAOImpl.java`
+File: `src/main/java/com/hospital/impl/PrescriptionLCImpl.java`
 
-Implements `PrescriptionDAO`.
+Implements `PrescriptionLC`.
 
 ### Database table
 
@@ -1071,11 +1071,11 @@ duration
 - `addPrescription`: inserts a prescription
 - `getPrescriptionsByRecord`: retrieves prescriptions for a medical record
 
-## 8.7 BillDAOImpl
+## 8.7 BillLCImpl
 
-File: `src/main/java/com/hospital/impl/BillDAOImpl.java`
+File: `src/main/java/com/hospital/impl/BillLCImpl.java`
 
-Implements `BillDAO`.
+Implements `BillLC`.
 
 ### Constant field
 
@@ -1109,11 +1109,11 @@ Total = consultation charge + medicine charge + other charge
 
 The inserted bill status is always `UNPAID`, and the generated bill ID is written back to the model.
 
-## 8.8 PaymentDAOImpl
+## 8.8 PaymentLCImpl
 
-File: `src/main/java/com/hospital/impl/PaymentDAOImpl.java`
+File: `src/main/java/com/hospital/impl/PaymentLCImpl.java`
 
-Implements `PaymentDAO`.
+Implements `PaymentLC`.
 
 ### Database table
 
@@ -1138,10 +1138,10 @@ File: `src/main/java/com/hospital/service/PatientService.java`
 ### Fields
 
 ```java
-private final PatientDAO patientDAO
-private final AppointmentDAO appointmentDAO
-private final MedicalRecordDAO medicalRecordDAO
-private final PrescriptionDAO prescriptionDAO
+private final PatientLC patientLC
+private final AppointmentLC appointmentLC
+private final MedicalRecordLC medicalRecordLC
+private final PrescriptionLC prescriptionLC
 ```
 
 ### Methods
@@ -1183,9 +1183,9 @@ File: `src/main/java/com/hospital/service/AdminService.java`
 ### Fields
 
 ```java
-private final DoctorDAO doctorDAO
-private final PatientDAO patientDAO
-private final DepartmentDAO departmentDAO
+private final DoctorLC doctorLC
+private final PatientLC patientLC
+private final DepartmentLC departmentLC
 ```
 
 ### Method
@@ -1205,8 +1205,8 @@ File: `src/main/java/com/hospital/service/BillingService.java`
 ### Fields
 
 ```java
-private final BillDAO billDAO
-private final PaymentDAO paymentDAO
+private final BillLC billLC
+private final PaymentLC paymentLC
 ```
 
 ### Methods
@@ -1430,7 +1430,7 @@ Payment
 MainMenu
   -> ReceptionistMenu
       -> Register Patient
-          -> PatientDAOImpl.addPatient
+          -> PatientLCImpl.addPatient
               -> INSERT INTO patient
 ```
 
@@ -1442,7 +1442,7 @@ The new patient receives `ACTIVE` status.
 MainMenu
   -> AdminMenu
       -> Add Department
-          -> DepartmentDAOImpl.addDepartment
+          -> DepartmentLCImpl.addDepartment
               -> INSERT INTO department
 ```
 
@@ -1453,7 +1453,7 @@ MainMenu
   -> AdminMenu
       -> Add Doctor
           -> Select department
-          -> DoctorDAOImpl.addDoctor
+          -> DoctorLCImpl.addDoctor
               -> INSERT INTO doctor
 ```
 
@@ -1466,8 +1466,8 @@ ReceptionistMenu
   -> Select patient
   -> Select doctor
   -> Enter appointment date and time
-  -> AppointmentDAOImpl.isDoctorAvailable
-  -> AppointmentDAOImpl.bookAppointment
+  -> AppointmentLCImpl.isDoctorAvailable
+  -> AppointmentLCImpl.bookAppointment
       -> INSERT INTO appointment
 ```
 
@@ -1478,7 +1478,7 @@ The appointment is stored as `SCHEDULED` if the doctor has no scheduled appointm
 ```text
 ReceptionistMenu
   -> Enter appointment ID
-  -> AppointmentDAOImpl.cancelAppointment
+  -> AppointmentLCImpl.cancelAppointment
       -> UPDATE appointment SET status = 'CANCELLED'
 ```
 
@@ -1489,7 +1489,7 @@ DoctorMenu
   -> Enter appointment ID
   -> Find appointment
   -> Enter diagnosis and treatment notes
-  -> MedicalRecordDAOImpl.createMedicalRecord
+  -> MedicalRecordLCImpl.createMedicalRecord
       -> INSERT INTO medical_record
 ```
 
@@ -1501,7 +1501,7 @@ The patient and doctor are taken from the selected appointment.
 DoctorMenu
   -> Enter medical record ID
   -> Enter medicine name, dosage, and duration
-  -> PrescriptionDAOImpl.addPrescription
+  -> PrescriptionLCImpl.addPrescription
       -> INSERT INTO prescription
 ```
 
@@ -1516,7 +1516,7 @@ BillingMenu
   -> Enter medicine charge
   -> Enter other charge
   -> Enter bill date
-  -> BillDAOImpl.generateBill
+  -> BillLCImpl.generateBill
       -> Calculate total
       -> INSERT INTO bill
 ```
@@ -1530,10 +1530,10 @@ BillingMenu
   -> Select bill
   -> Enter amount, date, and method
   -> BillingService.makePayment
-      -> PaymentDAOImpl.recordPayment
+      -> PaymentLCImpl.recordPayment
       -> Sum all payments
       -> Determine status
-      -> BillDAOImpl.updateBillStatus
+      -> BillLCImpl.updateBillStatus
 ```
 
 Possible resulting statuses are `UNPAID`, `PARTIAL`, and `PAID`.
@@ -1660,7 +1660,7 @@ Only checks:
 assertTrue(true);
 ```
 
-The test does not exercise the database, menus, services, models, DAO implementations, billing rules, appointment rules, or input handling.
+The test does not exercise the database, menus, services, models, LC implementations, billing rules, appointment rules, or input handling.
 
 The current Maven test result is:
 
@@ -1699,17 +1699,17 @@ Services coordinate related operations:
 
 ## Data-access layer
 
-DAO interfaces define persistence operations, while `impl` classes execute JDBC SQL:
+LC interfaces define persistence operations, while `impl` classes execute JDBC SQL:
 
 ```text
-PatientDAO       -> PatientDAOImpl
-DoctorDAO        -> DoctorDAOImpl
-DepartmentDAO    -> DepartmentDAOImpl
-AppointmentDAO   -> AppointmentDAOImpl
-MedicalRecordDAO -> MedicalRecordDAOImpl
-PrescriptionDAO  -> PrescriptionDAOImpl
-BillDAO          -> BillDAOImpl
-PaymentDAO       -> PaymentDAOImpl
+PatientLC       -> PatientLCImpl
+DoctorLC        -> DoctorLCImpl
+DepartmentLC    -> DepartmentLCImpl
+AppointmentLC   -> AppointmentLCImpl
+MedicalRecordLC -> MedicalRecordLCImpl
+PrescriptionLC  -> PrescriptionLCImpl
+BillLC          -> BillLCImpl
+PaymentLC       -> PaymentLCImpl
 ```
 
 ## Domain/model layer
@@ -1726,7 +1726,7 @@ Patient -> Bill -> Payment
 
 ## Persistence layer
 
-`DBConnection` opens MySQL connections, and each DAO implementation runs SQL against the hospital database.
+`DBConnection` opens MySQL connections, and each LC implementation runs SQL against the hospital database.
 
 ---
 

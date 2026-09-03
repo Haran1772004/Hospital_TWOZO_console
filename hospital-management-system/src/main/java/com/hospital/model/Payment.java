@@ -8,18 +8,24 @@ public class Payment {
     private int billId;
     private BigDecimal amountPaid;
     private String paymentDate;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
     public Payment() {
     }
 
     public Payment(int paymentId, int billId, BigDecimal amountPaid,
-                   String paymentDate, String paymentMethod) {
+                   String paymentDate, PaymentMethod paymentMethod) {
         this.paymentId = paymentId;
         this.billId = billId;
         this.amountPaid = amountPaid;
         this.paymentDate = paymentDate;
         this.paymentMethod = paymentMethod;
+    }
+
+    public Payment(int paymentId, int billId, BigDecimal amountPaid,
+                   String paymentDate, String paymentMethod) {
+        this(paymentId, billId, amountPaid, paymentDate,
+                paymentMethod == null ? null : PaymentMethod.valueOf(paymentMethod.toUpperCase()));
     }
 
     public int getPaymentId() {
@@ -54,15 +60,15 @@ public class Payment {
         this.paymentDate = paymentDate;
     }
 
-    public String getPaymentMethod() {
+    public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
-    @Override
+    
     public String toString() {
         return "Payment{" +
                 "paymentId=" + paymentId +

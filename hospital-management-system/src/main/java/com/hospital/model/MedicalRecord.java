@@ -81,7 +81,7 @@ public class MedicalRecord {
         this.recordDate = recordDate;
     }
 
-    @Override
+    
     public String toString() {
         return "MedicalRecord{" +
                 "recordId=" + recordId +

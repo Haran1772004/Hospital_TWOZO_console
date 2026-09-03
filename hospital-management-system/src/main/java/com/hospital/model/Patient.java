@@ -5,25 +5,31 @@ public class Patient {
     private int patientId;
     private String name;
     private String dob;
-    private String gender;
+    private Gender gender;
     private String phone;
     private String email;
     private String address;
-    private String status;
+    private AccountStatus status;
 
     public Patient() {
     }
 
     public Patient(int patientId, String name, String dob, String gender,
-                   String phone, String email, String address, String status) {
+                   String phone, String email, String address, AccountStatus status) {
         this.patientId = patientId;
         this.name = name;
         this.dob = dob;
-        this.gender = gender;
+        this.gender = gender == null ? null : Gender.valueOf(gender.trim().toUpperCase());
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.status = status;
+    }
+
+    public Patient(int patientId, String name, String dob, String gender,
+                   String phone, String email, String address, String status) {
+        this(patientId, name, dob, gender, phone, email, address,
+                status == null ? null : AccountStatus.valueOf(status.toUpperCase()));
     }
 
     public int getPatientId() {
@@ -50,12 +56,16 @@ public class Patient {
         this.dob = dob;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public void setGender(String gender) {
+         this.gender = Gender.valueOf(gender.trim().toUpperCase()); 
     }
 
     public String getPhone() {
@@ -82,15 +92,19 @@ public class Patient {
         this.address = address;
     }
 
-    public String getStatus() {
+    public AccountStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(AccountStatus status) {
         this.status = status;
     }
 
-    @Override
+    public void setStatus(String status) {
+         this.status = AccountStatus.valueOf(status.toUpperCase()); 
+    }
+
+    
     public String toString() {
         return "Patient{" +
                 "patientId=" + patientId +

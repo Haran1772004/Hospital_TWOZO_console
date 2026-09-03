@@ -1,21 +1,26 @@
 package com.hospital.util;
 
+import com.hospital.localfunctions.UserLC;
+import com.hospital.impl.UserLCImpl;
 import com.hospital.model.User;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class UserStore {
-    private static final Map<String, User> users = new ConcurrentHashMap<>();
-    static {
-        addUser(new User("admin", "admin123", "ADMIN", 0));
-        addUser(new User("receptionist", "reception123", "RECEPTIONIST", 0));
-        addUser(new User("billing", "billing123", "BILLING", 0));
+    private static final UserLC userLC = new UserLCImpl();
+
+    private UserStore() {
     }
-    private UserStore() { }
-    public static void addUser(User user) { users.put(user.getUsername(), user); }
-    public static User getUser(String username) { return users.get(username); }
+
+    public static void addUser(User user) {
+        userLC.addUser(user);
+    }
+
+    public static User getUser(String username) {
+        return userLC.getUserByUsername(username);
+    }
+
     /** Returns all users in the store. For admin/demo use only. */
-    public static List<User> getAllUsers() { return new ArrayList<>(users.values()); }
+    public static List<User> getAllUsers() {
+        return userLC.getAllUsers();
+    }
 }

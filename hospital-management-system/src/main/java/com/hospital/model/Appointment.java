@@ -7,19 +7,25 @@ public class Appointment {
     private Doctor doctor;
     private String appointmentDate;
     private String appointmentTime;
-    private String status;
+    private AppointmentStatus status;
 
     public Appointment() {
     }
 
     public Appointment(int appointmentId, Patient patient, Doctor doctor,
-                        String appointmentDate, String appointmentTime, String status) {
+                        String appointmentDate, String appointmentTime, AppointmentStatus status) {
         this.appointmentId = appointmentId;
         this.patient = patient;
         this.doctor = doctor;
         this.appointmentDate = appointmentDate;
         this.appointmentTime = appointmentTime;
         this.status = status;
+    }
+
+    public Appointment(int appointmentId, Patient patient, Doctor doctor,
+                       String appointmentDate, String appointmentTime, String status) {
+        this(appointmentId, patient, doctor, appointmentDate, appointmentTime,
+                status == null ? null : AppointmentStatus.valueOf(status.toUpperCase()));
     }
 
     public int getAppointmentId() {
@@ -62,15 +68,19 @@ public class Appointment {
         this.appointmentTime = appointmentTime;
     }
 
-    public String getStatus() {
+    public AppointmentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(AppointmentStatus status) {
         this.status = status;
     }
 
-    @Override
+    public void setStatus(String status) { 
+        this.status = AppointmentStatus.valueOf(status.toUpperCase()); 
+    }
+
+    
     public String toString() {
         return "Appointment{" +
                 "appointmentId=" + appointmentId +

@@ -8,14 +8,15 @@ public class Doctor {
     private String phone;
     private String email;
     private Department department;
-    private String status;
+    private AccountStatus status;
 
     public Doctor() {
     }
 
     public Doctor(int doctorId, String name, String specialization,
                   String phone, String email, Department department,
-                  String status) {
+                  AccountStatus status)
+    {
         this.doctorId = doctorId;
         this.name = name;
         this.specialization = specialization;
@@ -23,6 +24,12 @@ public class Doctor {
         this.email = email;
         this.department = department;
         this.status = status;
+    }
+
+    public Doctor(int doctorId, String name, String specialization,
+                  String phone, String email, Department department, String status) {
+        this(doctorId, name, specialization, phone, email, department,
+                status == null ? null : AccountStatus.valueOf(status.toUpperCase()));
     }
 
     public int getDoctorId() {
@@ -73,15 +80,19 @@ public class Doctor {
         this.department = department;
     }
 
-    public String getStatus() {
+    public AccountStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(AccountStatus status) {
         this.status = status;
     }
 
-    @Override
+    public void setStatus(String status) { 
+        this.status = AccountStatus.valueOf(status.toUpperCase());
+    }
+
+    
     public String toString() {
         return "Doctor{" +
                 "doctorId=" + doctorId +

@@ -1,20 +1,24 @@
 package com.hospital.controller;
 
-import com.hospital.dao.*;
+import com.hospital.localfunctions.*;
 import com.hospital.impl.*;
 import com.hospital.model.Department;
 import com.hospital.model.Doctor;
+import com.hospital.model.AccountStatus;
+import com.hospital.model.User;
+import com.hospital.localfunctions.UserLC;
+import com.hospital.util.ValidationUtil;
 import com.hospital.service.AdminService;
 import com.hospital.util.TablePrinter;
-import com.hospital.util.UserStore;
-import com.hospital.model.User;
 
 import java.util.Scanner;
+import java.util.List;
 
 public class AdminMenu {
 
-    private static final DepartmentDAO departmentDAO = new DepartmentDAOImpl();
-    private static final DoctorDAO doctorDAO = new DoctorDAOImpl();
+    private static final DepartmentLC departmentLC = new DepartmentLCImpl();
+    private static final DoctorLC doctorLC = new DoctorLCImpl();
+    private static final UserLC userLC = new UserLCImpl();
     private static final AdminService adminService = new AdminService();
 
     public static void show(Scanner scanner) {
@@ -29,7 +33,7 @@ public class AdminMenu {
             System.out.println("3.  Deactivate Department");
             System.out.println("4.  Activate Department");
             System.out.println("5.  View All Departments");
-            System.out.println("6.  Add Doctor");
+            System.out.println("6.  Review Pending Doctor Registrations");
             System.out.println("7.  Update Doctor");
             System.out.println("8.  Deactivate Doctor");
             System.out.println("9.  Activate Doctor");
@@ -40,132 +44,193 @@ public class AdminMenu {
 
             String choice = scanner.nextLine().trim();
 
-            switch (choice) {
-                case "1"  -> addDepartment(scanner);
-                case "2"  -> updateDepartment(scanner);
-                case "3"  -> deactivateDepartment(scanner);
-                case "4"  -> activateDepartment(scanner);
-                case "5"  -> TablePrinter.printDepartments(departmentDAO.getAllDepartments());
-                case "6"  -> addDoctor(scanner);
-                case "7"  -> updateDoctor(scanner);
-                case "8"  -> deactivateDoctor(scanner);
-                case "9"  -> activateDoctor(scanner);
-                case "10" -> TablePrinter.printDoctors(doctorDAO.getAllDoctors());
+            try { switch (choice) {
+                case "1" -> addDepartment(scanner);
+                case "2" -> updateDepartment(scanner);
+                case "3" -> deactivateDepartment(scanner);
+                case "4" -> activateDepartment(scanner);
+                case "5" -> TablePrinter.printDepartments(departmentLC.getAllDepartments());
+                case "6" -> reviewPendingDoctors(scanner);
+                case "7" -> updateDoctor(scanner);
+                case "8" -> deactivateDoctor(scanner);
+                case "9" -> activateDoctor(scanner);
+                case "10" -> TablePrinter.printDoctors(doctorLC.getAllDoctors());
                 case "11" -> adminService.viewHospitalRecords();
-                case "0"  -> back = true;
-                default   -> System.out.println("Invalid choice.");
+                case "0" -> back = true;
+                default -> System.out.println("Invalid choice.");
+            } } catch (IllegalArgumentException | SecurityException exception) {
+                System.out.println("Operation failed: " + exception.getMessage());
             }
         }
     }
 
     private static void addDepartment(Scanner scanner) {
-        System.out.print("Name: ");
-        String name = scanner.nextLine();
-        System.out.print("Description: ");
-        String description = scanner.nextLine();
+        String name = "";
+        while (true) {
+            System.out.print("Name: ");
+            name = scanner.nextLine().trim();
 
-        Department department = new Department(0, name, description, "ACTIVE");
-        departmentDAO.addDepartment(department);
+            if (!ValidationUtil.isValidDeptName(name)) {
+                System.out.println("Name must be between " + ValidationUtil.DEPT_NAME_MIN
+                        + " and " + ValidationUtil.DEPT_NAME_MAX + " characters. Try again.");
+                continue;
+            }
+
+            boolean duplicate = false;
+            for (Department d : departmentLC.getAllDepartments()) {
+                if (d.getName().equalsIgnoreCase(name)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (duplicate) {
+                System.out.println("A department with this name already exists. Try again.");
+                continue;
+            }
+
+            break;
+        }
+
+        String description = "";
+        while (true) {
+            System.out.print("Description: ");
+            description = scanner.nextLine().trim();
+
+            if (!ValidationUtil.isValidDescription(description)) {
+                System.out.println("Description must be between " + ValidationUtil.DESC_MIN
+                        + " and " + ValidationUtil.DESC_MAX + " characters. Try again.");
+                continue;
+            }
+
+            break;
+        }
+
+        Department department = new Department(0, name, description, AccountStatus.ACTIVE);
+        departmentLC.addDepartment(department);
+        // System.out.println("Department added successfully.");
     }
 
     private static void updateDepartment(Scanner scanner) {
-        System.out.print("Department ID to update: ");
-        int id = Integer.parseInt(scanner.nextLine().trim());
+        int id = InputHelper.readInt(scanner, "Department ID to update: ");
 
-        Department existing = departmentDAO.getDepartmentById(id);
+        Department existing = departmentLC.getDepartmentById(id);
         if (existing == null) {
             System.out.println("No department found with ID: " + id);
             return;
         }
 
         System.out.print("New name (leave blank to keep '" + existing.getName() + "'): ");
-        String name = scanner.nextLine();
-        if (!name.isBlank()) existing.setName(name);
+        String name = scanner.nextLine().trim();
+        if (!name.isEmpty()) {
+            if (!ValidationUtil.isValidDeptName(name)) {
+                System.out.println("Name must be between " + ValidationUtil.DEPT_NAME_MIN
+                        + " and " + ValidationUtil.DEPT_NAME_MAX + " characters. Update cancelled.");
+                return;
+            }
+
+            for (Department d : departmentLC.getAllDepartments()) {
+                if (d.getDepartmentId() != existing.getDepartmentId()
+                        && d.getName().equalsIgnoreCase(name)) {
+                    System.out.println("A department with this name already exists. Update cancelled.");
+                    return;
+                }
+            }
+
+            existing.setName(name);
+        }
 
         System.out.print("New description (leave blank to keep current): ");
-        String description = scanner.nextLine();
-        if (!description.isBlank()) existing.setDescription(description);
+        String description = scanner.nextLine().trim();
+        if (!description.isEmpty()) {
+            if (!ValidationUtil.isValidDescription(description)) {
+                System.out.println("Description must be between " + ValidationUtil.DESC_MIN
+                        + " and " + ValidationUtil.DESC_MAX + " characters. Update cancelled.");
+                return;
+            }
+            existing.setDescription(description);
+        }
 
-        departmentDAO.updateDepartment(existing);
+        departmentLC.updateDepartment(existing);
+        // System.out.println("Department updated successfully.");
     }
 
     private static void deactivateDepartment(Scanner scanner) {
-        System.out.print("Department ID to deactivate: ");
-        int id = Integer.parseInt(scanner.nextLine().trim());
-        departmentDAO.deactivateDepartment(id);
+        int id = InputHelper.readInt(scanner, "Department ID to deactivate: ");
+        departmentLC.deactivateDepartment(id);
     }
 
     private static void activateDepartment(Scanner scanner) {
-        System.out.print("Department ID to activate: ");
-        int id = Integer.parseInt(scanner.nextLine().trim());
-        departmentDAO.activateDepartment(id);
+        int id = InputHelper.readInt(scanner, "Department ID to activate: ");
+        departmentLC.activateDepartment(id);
     }
 
-    private static void addDoctor(Scanner scanner) {
-
-        TablePrinter.printDepartments(departmentDAO.getAllDepartments());
-        System.out.print("Department ID for this doctor: ");
-        int deptId = Integer.parseInt(scanner.nextLine().trim());
-
-        Department department = departmentDAO.getDepartmentById(deptId);
-        if (department == null) {
-            System.out.println("Invalid department ID.");
-            return;
+    private static void reviewPendingDoctors(Scanner scanner) {
+        List<User> pending = userLC.getPendingUsersByRole("DOCTOR");
+        if (pending.isEmpty()) { System.out.println("No pending doctor registrations."); return; }
+        for (User user : pending) {
+            Doctor doctor = doctorLC.getDoctorById(user.getLinkedId());
+            System.out.println("Username: " + user.getUsername() + ", Doctor: " + (doctor == null ? "N/A" : doctor.getName()));
+            String action = InputHelper.readText(scanner, "Approve (A) or reject (R): ");
+            if ("A".equalsIgnoreCase(action)) { userLC.updateStatus(user.getUsername(), AccountStatus.ACTIVE); if (doctor != null) doctor.setStatus(AccountStatus.ACTIVE); System.out.println("Doctor approved."); }
+            else if ("R".equalsIgnoreCase(action)) { userLC.updateStatus(user.getUsername(), AccountStatus.REJECTED); if (doctor != null) doctor.setStatus(AccountStatus.INACTIVE); System.out.println("Doctor rejected."); }
+            else System.out.println("Invalid action; left pending.");
         }
-
-        // Bug fix: reject assignment to an inactive department
-        if ("INACTIVE".equals(department.getStatus())) {
-            System.out.println("Cannot assign doctor to an inactive department. Please choose an active department.");
-            return;
-        }
-
-        System.out.print("Doctor name: ");
-        String name = scanner.nextLine();
-        System.out.print("Specialization: ");
-        String specialization = scanner.nextLine();
-        System.out.print("Phone: ");
-        String phone = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-
-        Doctor doctor = new Doctor(0, name, specialization, phone, email, department, "ACTIVE");
-        doctorDAO.addDoctor(doctor);
-        String username = "doctor" + doctor.getDoctorId();
-        String password = "doctor" + doctor.getDoctorId() + "123";
-        UserStore.addUser(new User(username, password, "DOCTOR", doctor.getDoctorId()));
-        System.out.println("Doctor login created: " + username + " / " + password);
     }
 
     private static void updateDoctor(Scanner scanner) {
-        System.out.print("Doctor ID to update: ");
-        int id = Integer.parseInt(scanner.nextLine().trim());
+        int id = InputHelper.readInt(scanner, "Doctor ID to update: ");
 
-        Doctor existing = doctorDAO.getDoctorById(id);
+        Doctor existing = doctorLC.getDoctorById(id);
         if (existing == null) {
             System.out.println("No doctor found with ID: " + id);
             return;
         }
 
         System.out.print("New phone (leave blank to keep current): ");
-        String phone = scanner.nextLine();
-        if (!phone.isBlank()) existing.setPhone(phone);
+        String phone = scanner.nextLine().trim();
+        if (!phone.isEmpty()) {
+            if (!ValidationUtil.isValidPhone(phone)) {
+                System.out.println("Invalid phone number. Update cancelled.");
+                return;
+            }
+            if (doctorLC.getAllDoctors().stream().anyMatch(d -> d.getDoctorId() != existing.getDoctorId()
+                    && d.getPhone().replaceAll("[^0-9]", "").equals(phone.replaceAll("[^0-9]", "")))) {
+                System.out.println("A doctor with this phone already exists. Update cancelled.");
+                return;
+            }
+            existing.setPhone(phone);
+        }
 
         System.out.print("New email (leave blank to keep current): ");
-        String email = scanner.nextLine();
-        if (!email.isBlank()) existing.setEmail(email);
+        String email = scanner.nextLine().trim();
+        if (!email.isEmpty()) {
+            if (!ValidationUtil.isValidEmail(email)) {
+                System.out.println("Invalid email format. Update cancelled.");
+                return;
+            }
 
-        doctorDAO.updateDoctor(existing);
+            for (Doctor d : doctorLC.getAllDoctors()) {
+                if (d.getDoctorId() != existing.getDoctorId()
+                        && d.getEmail().trim().equalsIgnoreCase(email.trim())) {
+                    System.out.println("A doctor with this email already exists. Update cancelled.");
+                    return;
+                }
+            }
+
+            existing.setEmail(email);
+        }
+
+        doctorLC.updateDoctor(existing);
+        System.out.println("Doctor updated successfully.");
     }
 
     private static void deactivateDoctor(Scanner scanner) {
-        System.out.print("Doctor ID to deactivate: ");
-        int id = Integer.parseInt(scanner.nextLine().trim());
-        doctorDAO.deactivateDoctor(id);
+        int id = InputHelper.readInt(scanner, "Doctor ID to deactivate: ");
+        doctorLC.deactivateDoctor(id);
     }
 
     private static void activateDoctor(Scanner scanner) {
-        System.out.print("Doctor ID to activate: ");
-        int id = Integer.parseInt(scanner.nextLine().trim());
-        doctorDAO.activateDoctor(id);
+        int id = InputHelper.readInt(scanner, "Doctor ID to activate: ");
+        doctorLC.activateDoctor(id);
     }
 }

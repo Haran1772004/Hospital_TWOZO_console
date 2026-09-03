@@ -1,22 +1,25 @@
 package com.hospital.controller;
 
-import com.hospital.dao.BillDAO;
-import com.hospital.dao.PatientDAO;
-import com.hospital.impl.BillDAOImpl;
-import com.hospital.impl.PatientDAOImpl;
+import com.hospital.localfunctions.BillLC;
+import com.hospital.impl.BillLCImpl;
+import com.hospital.localfunctions.AppointmentLC;
+import com.hospital.impl.AppointmentLCImpl;
+import com.hospital.model.Appointment;
 import com.hospital.model.Bill;
-import com.hospital.model.Patient;
 import com.hospital.model.Payment;
+import com.hospital.model.PaymentMethod;
+import com.hospital.model.BillStatus;
 import com.hospital.service.BillingService;
 import com.hospital.util.TablePrinter;
+import com.hospital.util.ValidationUtil;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class BillingMenu {
 
-    private static final BillDAO billDAO = new BillDAOImpl();
-    private static final PatientDAO patientDAO = new PatientDAOImpl();
+    private static final BillLC billLC = new BillLCImpl();
+    private static final AppointmentLC appointmentLC = new AppointmentLCImpl();
     private static final BillingService billingService = new BillingService();
 
     public static void show(Scanner scanner) {
@@ -35,26 +38,28 @@ public class BillingMenu {
 
             String choice = scanner.nextLine().trim();
 
-            switch (choice) {
+            try { switch (choice) {
                 case "1" -> generateBill(scanner);
                 case "2" -> recordPayment(scanner);
                 case "3" -> viewPaymentHistory(scanner);
-                case "4" -> TablePrinter.printBills(billDAO.getAllBills());
+                case "4" -> TablePrinter.printBills(billLC.getAllBills());
                 case "0" -> back = true;
                 default -> System.out.println("Invalid choice.");
+            } } catch (IllegalArgumentException | SecurityException exception) {
+                System.out.println("Operation failed: " + exception.getMessage());
             }
         }
     }
 
     private static void generateBill(Scanner scanner) {
 
-        System.out.println("\nAvailable patients:");
-        TablePrinter.printPatients(patientDAO.getAllPatients());
-        int patientId = InputHelper.readInt(scanner, "Patient ID: ");
-        Patient patient = patientDAO.getPatientById(patientId);
-
-        if (patient == null) {
-            System.out.println("Invalid patient ID.");
+        System.out.println("\nAvailable appointments:");
+        TablePrinter.printAppointments(appointmentLC.getAllAppointments());
+        int appointmentId = InputHelper.readInt(scanner, "Appointment ID: ");
+        Appointment appointment = appointmentLC.getAllAppointments().stream()
+                .filter(candidate -> candidate.getAppointmentId() == appointmentId).findFirst().orElse(null);
+        if (appointment == null) {
+            System.out.println("Invalid appointment ID.");
             return;
         }
 
@@ -63,14 +68,14 @@ public class BillingMenu {
         BigDecimal other = InputHelper.readBigDecimal(scanner, "Other charge: ");
         String billDate = InputHelper.readText(scanner, "Bill date (yyyy-MM-dd): ");
 
-        Bill bill = new Bill(0, patient, consultation, medicine, other, BigDecimal.ZERO, billDate, "UNPAID");
-        billDAO.generateBill(bill);
+        Bill bill = new Bill(0, appointment, consultation, medicine, other, BigDecimal.ZERO, billDate, BillStatus.UNPAID);
+        billLC.generateBill(bill);
     }
 
     private static void recordPayment(Scanner scanner) {
 
         int billId = InputHelper.readInt(scanner, "Bill ID: ");
-        Bill bill = billDAO.getBillById(billId);
+        Bill bill = billLC.getBillById(billId);
 
         if (bill == null) {
             System.out.println("No bill found with that ID.");
@@ -81,9 +86,19 @@ public class BillingMenu {
 
         BigDecimal amount = InputHelper.readBigDecimal(scanner, "Amount paid: ");
         String date = InputHelper.readText(scanner, "Payment date (yyyy-MM-dd): ");
-        String method = InputHelper.readText(scanner, "Payment method (CASH/CARD/UPI): ");
+        PaymentMethod method = readPaymentMethod(scanner);
 
         billingService.makePayment(new Payment(0, billId, amount, date, method));
+    }
+
+    private static PaymentMethod readPaymentMethod(Scanner scanner) {
+        while (true) {
+            String value = InputHelper.readText(scanner, "Payment method (CASH/CARD/UPI): ");
+            if (ValidationUtil.isValidPaymentMethod(value)) {
+                return PaymentMethod.valueOf(value.trim().toUpperCase());
+            }
+            System.out.println("Invalid payment method. Choose CASH, CARD, or UPI.");
+        }
     }
 
     private static void viewPaymentHistory(Scanner scanner) {

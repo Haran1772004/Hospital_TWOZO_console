@@ -1,38 +1,52 @@
 package com.hospital.service;
 
-import com.hospital.dao.BillDAO;
-import com.hospital.dao.PaymentDAO;
-import com.hospital.impl.BillDAOImpl;
-import com.hospital.impl.PaymentDAOImpl;
+import com.hospital.localfunctions.BillLC;
+import com.hospital.localfunctions.PaymentLC;
+import com.hospital.impl.BillLCImpl;
+import com.hospital.impl.PaymentLCImpl;
 import com.hospital.model.Bill;
 import com.hospital.model.Payment;
 import com.hospital.util.TablePrinter;
+import com.hospital.util.ValidationUtil;
+import com.hospital.model.BillStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public class BillingService {
 
-    private final BillDAO billDAO = new BillDAOImpl();
-    private final PaymentDAO paymentDAO = new PaymentDAOImpl();
+    private final BillLC billLC = new BillLCImpl();
+    private final PaymentLC paymentLC = new PaymentLCImpl();
 
     // Records a payment against a bill, then recalculates and updates that bill's status
     public void makePayment(Payment payment) {
 
-        Bill bill = billDAO.getBillById(payment.getBillId());
+        Bill bill = billLC.getBillById(payment.getBillId());
 
         if (bill == null) {
             System.out.println("No bill found with ID: " + payment.getBillId());
             return;
         }
 
-        if ("PAID".equals(bill.getStatus())) {
+        if (BillStatus.PAID == bill.getStatus()) {
             System.out.println("Bill " + bill.getBillId() + " is already fully paid.");
             return;
         }
 
+        if (!ValidationUtil.isPositiveNumber(payment.getAmountPaid()) || !ValidationUtil.isValidDate(payment.getPaymentDate())
+                || !LocalDate.now().toString().equals(payment.getPaymentDate()) || payment.getPaymentMethod() == null) {
+            System.out.println("Payment amount, method, and date must be valid; date must be today.");
+            return;
+        }
+        BigDecimal remaining = bill.getTotalAmount().subtract(getTotalPaid(bill.getBillId()));
+        if (payment.getAmountPaid().compareTo(remaining) > 0) {
+            System.out.println("Payment exceeds the remaining bill balance.");
+            return;
+        }
+
         // 1. Save the payment row
-        paymentDAO.recordPayment(payment);
+        paymentLC.recordPayment(payment);
 
         // 2. Sum ALL payments made so far against this bill (not just this one)
         BigDecimal totalPaid = getTotalPaid(bill.getBillId());
@@ -47,7 +61,7 @@ public class BillingService {
             newStatus = "UNPAID";
         }
 
-        billDAO.updateBillStatus(bill.getBillId(), newStatus);
+        billLC.updateBillStatus(bill.getBillId(), newStatus);
 
         System.out.println("Bill " + bill.getBillId() + " status updated to: " + newStatus
                 + " (Paid so far: " + totalPaid + " / " + bill.getTotalAmount() + ")");
@@ -56,7 +70,7 @@ public class BillingService {
     // Sums every payment ever recorded against a given bill
     public BigDecimal getTotalPaid(int billId) {
 
-        List<Payment> payments = paymentDAO.getPaymentsByBill(billId);
+        List<Payment> payments = paymentLC.getPaymentsByBill(billId);
 
         BigDecimal total = BigDecimal.ZERO;
         for (Payment p : payments) {
@@ -68,7 +82,7 @@ public class BillingService {
     // VIEW PAYMENT HISTORY for one bill (payments + running total + remaining balance)
     public void viewPaymentHistory(int billId) {
 
-        Bill bill = billDAO.getBillById(billId);
+        Bill bill = billLC.getBillById(billId);
         if (bill == null) {
             System.out.println("No bill found with ID: " + billId);
             return;
@@ -77,7 +91,7 @@ public class BillingService {
         System.out.println("========== PAYMENT HISTORY - Bill #" + billId + " ==========");
         TablePrinter.printBill(bill);
 
-        List<Payment> payments = paymentDAO.getPaymentsByBill(billId);
+        List<Payment> payments = paymentLC.getPaymentsByBill(billId);
         System.out.println("\nPayments:");
         TablePrinter.printPayments(payments);
 

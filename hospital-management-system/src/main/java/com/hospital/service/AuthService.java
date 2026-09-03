@@ -2,20 +2,38 @@ package com.hospital.service;
 
 import com.hospital.exception.AuthenticationException;
 import com.hospital.model.User;
-import com.hospital.util.UserStore;
+import com.hospital.model.AccountStatus;
+import com.hospital.localfunctions.UserLC;
+import com.hospital.impl.UserLCImpl;
+import com.hospital.util.PasswordUtil;
 
 public final class AuthService {
     private static User currentUser;
-    private AuthService() { }
+    private static final UserLC userLC = new UserLCImpl();
+
+    private AuthService() {
+    }
 
     public static User login(String username, String password) {
-        User user = UserStore.getUser(username);
-        if (user == null || !user.getPassword().equals(password)) {
+        User user = userLC.getUserByUsername(username);
+        if (user == null || !PasswordUtil.matches(password, user.getPassword())) {
             throw new AuthenticationException("Invalid username or password.");
+        }
+        if (AccountStatus.PENDING == user.getStatus()) {
+            throw new AuthenticationException("Your account is awaiting admin approval. Please try again later.");
+        }
+        if (AccountStatus.REJECTED == user.getStatus()) {
+            throw new AuthenticationException("Your account registration was rejected.");
         }
         currentUser = user;
         return user;
     }
-    public static User getCurrentUser() { return currentUser; }
-    public static void logout() { currentUser = null; }
+
+    public static User getCurrentUser() {
+        return currentUser;
+    }
+
+    public static void logout() {
+        currentUser = null;
+    }
 }

@@ -22,7 +22,7 @@ public class TablePrinter {
             data[i][2] = a.getDoctor() != null ? a.getDoctor().getName() : "N/A";
             data[i][3] = a.getAppointmentDate() != null ? a.getAppointmentDate() : "";
             data[i][4] = a.getAppointmentTime() != null ? a.getAppointmentTime() : "";
-            data[i][5] = a.getStatus() != null ? a.getStatus() : "";
+            data[i][5] = a.getStatus() != null ? a.getStatus().name() : "";
         }
 
         printTable(headers, data);
@@ -50,49 +50,19 @@ public class TablePrinter {
             data[i][0] = String.valueOf(p.getPatientId());
             data[i][1] = p.getName() != null ? p.getName() : "";
             data[i][2] = p.getDob() != null ? p.getDob() : "";
-            data[i][3] = p.getGender() != null ? p.getGender() : "";
+            data[i][3] = p.getGender() != null ? p.getGender().name() : "";
             data[i][4] = p.getPhone() != null ? p.getPhone() : "";
             data[i][5] = p.getEmail() != null ? p.getEmail() : "";
             data[i][6] = p.getAddress() != null ? p.getAddress() : "";
-            data[i][7] = p.getStatus() != null ? p.getStatus() : "";
+            data[i][7] = p.getStatus() != null ? p.getStatus().name() : "";
         }
 
         printTable(headers, data);
     }
 
-    /**
-     * Prints patients with Username and Password columns.
-     * NOTE: For academic/demo purposes only — never show credentials in production.
-     */
+    /** Kept as a compatibility method; credentials are intentionally never printed. */
     public static void printPatientsWithCredentials(List<Patient> patients) {
-        if (patients == null || patients.isEmpty()) {
-            System.out.println("No patients found.");
-            return;
-        }
-
-        String[] headers = {"ID", "Name", "DOB", "Gender", "Phone", "Email", "Address", "Status", "Username", "Password"};
-        String[][] data = new String[patients.size()][10];
-
-        for (int i = 0; i < patients.size(); i++) {
-            Patient p = patients.get(i);
-            data[i][0] = String.valueOf(p.getPatientId());
-            data[i][1] = p.getName() != null ? p.getName() : "";
-            data[i][2] = p.getDob() != null ? p.getDob() : "";
-            data[i][3] = p.getGender() != null ? p.getGender() : "";
-            data[i][4] = p.getPhone() != null ? p.getPhone() : "";
-            data[i][5] = p.getEmail() != null ? p.getEmail() : "";
-            data[i][6] = p.getAddress() != null ? p.getAddress() : "";
-            data[i][7] = p.getStatus() != null ? p.getStatus() : "";
-
-            // Look up login credentials by matching linkedId == patientId and role == PATIENT
-            User user = UserStore.getAllUsers().stream()
-                    .filter(u -> "PATIENT".equals(u.getRole()) && u.getLinkedId() == p.getPatientId())
-                    .findFirst().orElse(null);
-            data[i][8] = user != null ? user.getUsername() : "N/A";
-            data[i][9] = user != null ? user.getPassword() : "N/A";
-        }
-
-        printTable(headers, data);
+        printPatients(patients);
     }
 
     public static void printPatient(Patient patient) {
@@ -118,12 +88,11 @@ public class TablePrinter {
         data[0][0] = String.valueOf(patient.getPatientId());
         data[0][1] = patient.getName()    != null ? patient.getName()    : "";
         data[0][2] = patient.getDob()     != null ? patient.getDob()     : "";
-        data[0][3] = patient.getGender()  != null ? patient.getGender()  : "";
+        data[0][3] = patient.getGender()  != null ? patient.getGender().name()  : "";
         data[0][4] = patient.getPhone()   != null ? patient.getPhone()   : "";
         data[0][5] = patient.getEmail()   != null ? patient.getEmail()   : "";
         data[0][6] = patient.getAddress() != null ? patient.getAddress() : "";
-        data[0][7] = patient.getStatus()  != null ? patient.getStatus()  : "";
-        // linkedId == patientId because UserStore.addUser sets linkedId = patient.getPatientId()
+        data[0][7] = patient.getStatus()  != null ? patient.getStatus().name()  : "";
         data[0][8] = String.valueOf(patient.getPatientId());
         printTable(headers, data);
     }
@@ -145,44 +114,15 @@ public class TablePrinter {
             data[i][3] = d.getDepartment() != null ? d.getDepartment().getName() : "N/A";
             data[i][4] = d.getPhone() != null ? d.getPhone() : "";
             data[i][5] = d.getEmail() != null ? d.getEmail() : "";
-            data[i][6] = d.getStatus() != null ? d.getStatus() : "";
+            data[i][6] = d.getStatus() != null ? d.getStatus().name() : "";
         }
 
         printTable(headers, data);
     }
 
-    /**
-     * Prints doctors with Username and Password columns.
-     * NOTE: For academic/demo purposes only — never show credentials in production.
-     */
+    /** Kept as a compatibility method; credentials are intentionally never printed. */
     public static void printDoctorsWithCredentials(List<Doctor> doctors) {
-        if (doctors == null || doctors.isEmpty()) {
-            System.out.println("No doctors found.");
-            return;
-        }
-
-        String[] headers = {"ID", "Doctor Name", "Specialization", "Department", "Phone", "Email", "Status", "Username", "Password"};
-        String[][] data = new String[doctors.size()][9];
-
-        for (int i = 0; i < doctors.size(); i++) {
-            Doctor d = doctors.get(i);
-            data[i][0] = String.valueOf(d.getDoctorId());
-            data[i][1] = d.getName() != null ? d.getName() : "";
-            data[i][2] = d.getSpecialization() != null ? d.getSpecialization() : "";
-            data[i][3] = d.getDepartment() != null ? d.getDepartment().getName() : "N/A";
-            data[i][4] = d.getPhone() != null ? d.getPhone() : "";
-            data[i][5] = d.getEmail() != null ? d.getEmail() : "";
-            data[i][6] = d.getStatus() != null ? d.getStatus() : "";
-
-            // Look up login credentials by matching linkedId == doctorId and role == DOCTOR
-            User user = UserStore.getAllUsers().stream()
-                    .filter(u -> "DOCTOR".equals(u.getRole()) && u.getLinkedId() == d.getDoctorId())
-                    .findFirst().orElse(null);
-            data[i][7] = user != null ? user.getUsername() : "N/A";
-            data[i][8] = user != null ? user.getPassword() : "N/A";
-        }
-
-        printTable(headers, data);
+        printDoctors(doctors);
     }
 
     public static void printDoctor(Doctor doctor) {
@@ -207,7 +147,7 @@ public class TablePrinter {
             data[i][0] = String.valueOf(dept.getDepartmentId());
             data[i][1] = dept.getName() != null ? dept.getName() : "";
             data[i][2] = dept.getDescription() != null ? dept.getDescription() : "";
-            data[i][3] = dept.getStatus() != null ? dept.getStatus() : "";
+            data[i][3] = dept.getStatus() != null ? dept.getStatus().name() : "";
         }
 
         printTable(headers, data);
@@ -299,7 +239,7 @@ public class TablePrinter {
             data[i][4] = b.getOtherCharge() != null ? b.getOtherCharge().toString() : "0.00";
             data[i][5] = b.getTotalAmount() != null ? b.getTotalAmount().toString() : "0.00";
             data[i][6] = b.getBillDate() != null ? b.getBillDate() : "";
-            data[i][7] = b.getStatus() != null ? b.getStatus() : "";
+            data[i][7] = b.getStatus() != null ? b.getStatus().name() : "";
         }
 
         printTable(headers, data);
@@ -328,7 +268,7 @@ public class TablePrinter {
             data[i][1] = String.valueOf(p.getBillId());
             data[i][2] = p.getAmountPaid() != null ? p.getAmountPaid().toString() : "0.00";
             data[i][3] = p.getPaymentDate() != null ? p.getPaymentDate() : "";
-            data[i][4] = p.getPaymentMethod() != null ? p.getPaymentMethod() : "";
+            data[i][4] = p.getPaymentMethod() != null ? p.getPaymentMethod().name() : "";
         }
 
         printTable(headers, data);

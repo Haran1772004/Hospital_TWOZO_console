@@ -1,9 +1,10 @@
 package com.hospital.controller;
 
-import com.hospital.dao.*;
+import com.hospital.localfunctions.*;
 import com.hospital.impl.*;
 import com.hospital.model.*;
 import com.hospital.util.TablePrinter;
+import com.hospital.util.ValidationUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,10 +15,10 @@ import java.util.stream.Collectors;
 
 public class DoctorMenu {
 
-    private static final AppointmentDAO   appointmentDAO   = new AppointmentDAOImpl();
-    private static final PatientDAO        patientDAO       = new PatientDAOImpl();
-    private static final MedicalRecordDAO  medicalRecordDAO = new MedicalRecordDAOImpl();
-    private static final PrescriptionDAO   prescriptionDAO  = new PrescriptionDAOImpl();
+    private static final AppointmentLC   appointmentLC   = new AppointmentLCImpl();
+    private static final PatientLC        patientLC       = new PatientLCImpl();
+    private static final MedicalRecordLC  medicalRecordLC = new MedicalRecordLCImpl();
+    private static final PrescriptionLC   prescriptionLC  = new PrescriptionLCImpl();
 
     public static void show(Scanner scanner, User user) {
         int doctorId = user.getLinkedId();
@@ -33,14 +34,16 @@ public class DoctorMenu {
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose option: ");
 
-            switch (scanner.nextLine().trim()) {
-                case "1" -> TablePrinter.printAppointments(appointmentDAO.getAppointmentsByDoctor(doctorId));
+            try { switch (scanner.nextLine().trim()) {
+                case "1" -> TablePrinter.printAppointments(appointmentLC.getAppointmentsByDoctor(doctorId));
                 case "2" -> viewPatientDetails(scanner, user);
                 case "3" -> createMedicalRecord(scanner, doctorId);
                 case "4" -> prescribeMedicine(scanner, user);
                 case "5" -> viewPatientRecords(scanner, doctorId);
                 case "0" -> back = true;
                 default  -> System.out.println("Invalid choice.");
+            } } catch (IllegalArgumentException | SecurityException exception) {
+                System.out.println("Operation failed: " + exception.getMessage());
             }
         }
     }
@@ -55,9 +58,9 @@ public class DoctorMenu {
 
         // Collect distinct patients from this doctor's appointments
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
-        appointmentDAO.getAppointmentsByDoctor(doctorId).stream()
+        appointmentLC.getAppointmentsByDoctor(doctorId).stream()
                 .map(Appointment::getPatient)
-                .filter(p -> p != null)
+                .filter(p -> p != null && AccountStatus.ACTIVE == p.getStatus())
                 .forEach(p -> distinctPatients.putIfAbsent(p.getPatientId(), p));
 
         List<Patient> myPatients = new ArrayList<>(distinctPatients.values());
@@ -71,7 +74,12 @@ public class DoctorMenu {
         TablePrinter.printPatients(myPatients);
 
         int patientId = InputHelper.readInt(scanner, "Patient ID: ");
-        Patient p = patientDAO.getPatientById(patientId);
+        if (myPatients.stream().noneMatch(patient -> patient.getPatientId() == patientId)) {
+            System.out.println("You can only view patients who have appointments with you.");
+            return;
+        }
+
+        Patient p = patientLC.getPatientById(patientId);
         if (p == null) {
             System.out.println("No patient found with ID: " + patientId);
             return;
@@ -83,10 +91,10 @@ public class DoctorMenu {
 
     private static void createMedicalRecord(Scanner scanner, int doctorId) {
         System.out.println("\nYour appointments:");
-        TablePrinter.printAppointments(appointmentDAO.getAppointmentsByDoctor(doctorId));
+        TablePrinter.printAppointments(appointmentLC.getAppointmentsByDoctor(doctorId));
 
         int appointmentId = InputHelper.readInt(scanner, "Appointment ID this record is for: ");
-        Appointment appointment = appointmentDAO.getAllAppointments().stream()
+        Appointment appointment = appointmentLC.getAllAppointments().stream()
                 .filter(a -> a.getAppointmentId() == appointmentId)
                 .findFirst().orElse(null);
 
@@ -99,12 +107,21 @@ public class DoctorMenu {
             return;
         }
 
+        String recordDate = readValidRecordDate(scanner);
         MedicalRecord record = new MedicalRecord(
                 0, appointment, appointment.getPatient(), appointment.getDoctor(),
                 InputHelper.readText(scanner, "Diagnosis: "),
                 InputHelper.readText(scanner, "Treatment notes: "),
-                InputHelper.readText(scanner, "Record date (yyyy-MM-dd): "));
-        medicalRecordDAO.createMedicalRecord(record);
+                recordDate);
+        medicalRecordLC.createMedicalRecord(record);
+    }
+
+    private static String readValidRecordDate(Scanner scanner) {
+        while (true) {
+            String date = InputHelper.readText(scanner, "Record date (yyyy-MM-dd, today only): ");
+            if (ValidationUtil.isValidDate(date) && java.time.LocalDate.now().toString().equals(date)) return date;
+            System.out.println("Invalid record date. Enter today's date in yyyy-MM-dd format.");
+        }
     }
 
     /**
@@ -117,9 +134,9 @@ public class DoctorMenu {
 
         // Step 1: choose the patient from this doctor's own patient list
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
-        appointmentDAO.getAppointmentsByDoctor(doctorId).stream()
+        appointmentLC.getAppointmentsByDoctor(doctorId).stream()
                 .map(Appointment::getPatient)
-                .filter(p -> p != null)
+                .filter(p -> p != null && AccountStatus.ACTIVE == p.getStatus())
                 .forEach(p -> distinctPatients.putIfAbsent(p.getPatientId(), p));
 
         List<Patient> myPatients = new ArrayList<>(distinctPatients.values());
@@ -134,7 +151,7 @@ public class DoctorMenu {
         int patientId = InputHelper.readInt(scanner, "Patient ID to prescribe for: ");
 
         // Step 2: show only this doctor's own records for that patient
-        List<MedicalRecord> myRecords = medicalRecordDAO.getRecordsByPatient(patientId)
+        List<MedicalRecord> myRecords = medicalRecordLC.getRecordsByPatient(patientId)
                 .stream()
                 .filter(r -> r.getDoctor().getDoctorId() == doctorId)
                 .collect(Collectors.toList());
@@ -149,7 +166,7 @@ public class DoctorMenu {
 
         // Step 3: prescribe against the chosen record
         int recordId = InputHelper.readInt(scanner, "Medical Record ID to prescribe against: ");
-        MedicalRecord record = medicalRecordDAO.getRecordById(recordId);
+        MedicalRecord record = medicalRecordLC.getRecordById(recordId);
 
         if (record == null) {
             System.out.println("No medical record found with that ID.");
@@ -162,26 +179,34 @@ public class DoctorMenu {
 
         boolean addMore = true;
         while (addMore) {
-            prescriptionDAO.addPrescription(new Prescription(
+            prescriptionLC.addPrescription(new Prescription(
                     0, recordId,
-                    InputHelper.readText(scanner, "Medicine name: "),
-                    InputHelper.readText(scanner, "Dosage: "),
-                    InputHelper.readText(scanner, "Duration: ")));
+                    readRequiredText(scanner, "Medicine name: "),
+                    readRequiredText(scanner, "Dosage: "),
+                    readRequiredText(scanner, "Duration: ")));
             addMore = InputHelper.readText(scanner, "Add another medicine? (y/n): ").equalsIgnoreCase("y");
+        }
+    }
+
+    private static String readRequiredText(Scanner scanner, String prompt) {
+        while (true) {
+            String value = InputHelper.readText(scanner, prompt);
+            if (ValidationUtil.isNonBlank(value)) return value;
+            System.out.println("This field is required.");
         }
     }
 
     private static void viewPatientRecords(Scanner scanner, int doctorId) {
         System.out.println("\nYour patients:");
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
-        appointmentDAO.getAppointmentsByDoctor(doctorId).stream()
+        appointmentLC.getAppointmentsByDoctor(doctorId).stream()
                 .map(Appointment::getPatient)
-                .filter(p -> p != null)
+                .filter(p -> p != null && AccountStatus.ACTIVE == p.getStatus())
                 .forEach(p -> distinctPatients.putIfAbsent(p.getPatientId(), p));
         TablePrinter.printPatients(new ArrayList<>(distinctPatients.values()));
 
         int patientId = InputHelper.readInt(scanner, "Patient ID: ");
-        List<MedicalRecord> records = medicalRecordDAO.getRecordsByPatient(patientId).stream()
+        List<MedicalRecord> records = medicalRecordLC.getRecordsByPatient(patientId).stream()
                 .filter(r -> r.getDoctor().getDoctorId() == doctorId)
                 .collect(Collectors.toList());
         TablePrinter.printMedicalRecords(records);

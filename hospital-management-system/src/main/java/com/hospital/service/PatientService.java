@@ -1,6 +1,6 @@
 package com.hospital.service;
 
-import com.hospital.dao.*;
+import com.hospital.localfunctions.*;
 import com.hospital.impl.*;
 import com.hospital.model.*;
 import com.hospital.util.TablePrinter;
@@ -11,24 +11,22 @@ import java.util.List;
 
 public class PatientService {
 
-    private final PatientDAO     patientDAO     = new PatientDAOImpl();
-    private final AppointmentDAO appointmentDAO = new AppointmentDAOImpl();
-    private final MedicalRecordDAO medicalRecordDAO = new MedicalRecordDAOImpl();
-    private final PrescriptionDAO prescriptionDAO = new PrescriptionDAOImpl();
-    private final BillDAO        billDAO        = new BillDAOImpl();
-    private final PaymentDAO     paymentDAO     = new PaymentDAOImpl();
+    private final PatientLC     patientLC     = new PatientLCImpl();
+    private final AppointmentLC appointmentLC = new AppointmentLCImpl();
+    private final MedicalRecordLC medicalRecordLC = new MedicalRecordLCImpl();
+    private final PrescriptionLC prescriptionLC = new PrescriptionLCImpl();
+    private final BillLC        billLC        = new BillLCImpl();
+    private final PaymentLC     paymentLC     = new PaymentLCImpl();
 
     // 1. VIEW PERSONAL DETAILS
     public Patient viewPersonalDetails(int patientId) {
-        return patientDAO.getPatientById(patientId);
+        ensurePatientAccess(patientId);
+        return patientLC.getPatientById(patientId);
     }
 
-    /**
-     * Prints the patient's own personal details plus their login credentials.
-     * Safe to display because the patient is only viewing their own account.
-     */
+    /** Prints the patient's own personal details and username. */
     public void viewPersonalDetailsWithCredentials(int patientId, User loggedInUser) {
-        Patient patient = patientDAO.getPatientById(patientId);
+        Patient patient = patientLC.getPatientById(patientId);
         if (patient == null) {
             System.out.println("No patient found with ID: " + patientId);
             return;
@@ -37,30 +35,31 @@ public class PatientService {
         System.out.println("\n--- Personal Details ---");
         TablePrinter.printPatient(patient);
 
-        // Show the patient's own login credentials (patient views only their own — not a security risk)
         if (loggedInUser != null) {
-            System.out.println("\n--- Your Login Credentials ---");
+            System.out.println("\n--- Your Login Username ---");
             System.out.println("  Username : " + loggedInUser.getUsername());
-            System.out.println("  Password : " + loggedInUser.getPassword());
         }
     }
 
     // 2. VIEW APPOINTMENTS (ordered by date)
     public List<Appointment> viewAppointments(int patientId) {
-        return appointmentDAO.getAppointmentsByPatient(patientId);
+        ensurePatientAccess(patientId);
+        return appointmentLC.getAppointmentsByPatient(patientId);
     }
 
     // 3. VIEW MEDICAL RECORDS
     public List<MedicalRecord> viewMedicalRecords(int patientId) {
-        return medicalRecordDAO.getRecordsByPatient(patientId);
+        ensurePatientAccess(patientId);
+        return medicalRecordLC.getRecordsByPatient(patientId);
     }
 
     // 4. VIEW PRESCRIPTIONS (across ALL of the patient's medical records)
     public List<Prescription> viewPrescriptions(int patientId) {
+        ensurePatientAccess(patientId);
         List<Prescription> allPrescriptions = new ArrayList<>();
-        List<MedicalRecord> records = medicalRecordDAO.getRecordsByPatient(patientId);
+        List<MedicalRecord> records = medicalRecordLC.getRecordsByPatient(patientId);
         for (MedicalRecord record : records) {
-            allPrescriptions.addAll(prescriptionDAO.getPrescriptionsByRecord(record.getRecordId()));
+            allPrescriptions.addAll(prescriptionLC.getPrescriptionsByRecord(record.getRecordId()));
         }
         return allPrescriptions;
     }
@@ -71,17 +70,16 @@ public class PatientService {
      */
     private BigDecimal getTotalPaid(int billId) {
         BigDecimal total = BigDecimal.ZERO;
-        for (Payment p : paymentDAO.getPaymentsByBill(billId)) {
+        for (Payment p : paymentLC.getPaymentsByBill(billId)) {
             total = total.add(p.getAmountPaid());
         }
         return total;
     }
 
-    /**
-     * Prints the patient's complete profile: personal details + credentials,
-     * appointments, medical records, prescriptions, and full billing information.
-     */
+    /** Prints the patient's complete profile without exposing password data. */
     public void viewFullProfile(int patientId, User loggedInUser) {
+
+        ensurePatientAccess(patientId);
 
         System.out.println("========== PATIENT PROFILE ==========");
 
@@ -95,11 +93,9 @@ public class PatientService {
         System.out.println("\n--- Personal Details ---");
         TablePrinter.printPatient(patient);
 
-        // Own credentials (safe: patient viewing their own data only)
         if (loggedInUser != null) {
-            System.out.println("\n--- Your Login Credentials ---");
+            System.out.println("\n--- Your Login Username ---");
             System.out.println("  Username : " + loggedInUser.getUsername());
-            System.out.println("  Password : " + loggedInUser.getPassword());
         }
 
         // Appointments
@@ -116,7 +112,7 @@ public class PatientService {
 
         // Billing information
         System.out.println("\n--- Billing Information ---");
-        List<Bill> bills = billDAO.getBillsByPatient(patientId);
+        List<Bill> bills = billLC.getBillsByPatient(patientId);
         if (bills.isEmpty()) {
             System.out.println("No bills found.");
         } else {
@@ -126,7 +122,7 @@ public class PatientService {
             for (Bill bill : bills) {
                 System.out.println("\n  Payments for Bill #" + bill.getBillId()
                         + " (Total: " + bill.getTotalAmount() + ")");
-                List<Payment> payments = paymentDAO.getPaymentsByBill(bill.getBillId());
+                List<Payment> payments = paymentLC.getPaymentsByBill(bill.getBillId());
                 if (payments.isEmpty()) {
                     System.out.println("  No payments recorded yet.");
                 } else {
@@ -148,5 +144,13 @@ public class PatientService {
      */
     public void viewFullProfile(int patientId) {
         viewFullProfile(patientId, null);
+    }
+
+    private void ensurePatientAccess(int patientId) {
+        User currentUser = AuthService.getCurrentUser();
+        if (currentUser != null && "PATIENT".equals(currentUser.getRole())
+                && currentUser.getLinkedId() != patientId) {
+            throw new SecurityException("Patients may access only their own records");
+        }
     }
 }

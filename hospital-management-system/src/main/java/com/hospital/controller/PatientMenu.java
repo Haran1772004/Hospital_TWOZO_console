@@ -3,7 +3,6 @@ package com.hospital.controller;
 import com.hospital.model.User;
 import com.hospital.service.PatientService;
 import com.hospital.util.TablePrinter;
-import com.hospital.util.UserStore;
 import java.util.Scanner;
 
 public class PatientMenu {
@@ -29,7 +28,7 @@ public class PatientMenu {
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose option: ");
 
-            switch (scanner.nextLine().trim()) {
+            try { switch (scanner.nextLine().trim()) {
                 // Show personal details + own login credentials (safe: patient views only their own)
                 case "1" -> patientService.viewPersonalDetailsWithCredentials(patientId, user);
                 case "2" -> TablePrinter.printAppointments(patientService.viewAppointments(patientId));
@@ -38,6 +37,8 @@ public class PatientMenu {
                 case "5" -> patientService.viewFullProfile(patientId, user);
                 case "0" -> back = true;
                 default  -> System.out.println("Invalid choice.");
+            } } catch (IllegalArgumentException | SecurityException exception) {
+                System.out.println("Operation failed: " + exception.getMessage());
             }
         }
     }
