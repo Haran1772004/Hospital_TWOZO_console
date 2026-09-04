@@ -1,5 +1,6 @@
 package com.hospital.controller;
 
+import com.hospital.exception.HospitalException;
 import com.hospital.localfunctions.*;
 import com.hospital.impl.*;
 import com.hospital.model.*;
@@ -34,7 +35,8 @@ public class DoctorMenu {
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose option: ");
 
-            try { switch (scanner.nextLine().trim()) {
+            try {
+                switch (scanner.nextLine().trim()) {
                 case "1" -> TablePrinter.printAppointments(appointmentLF.getAppointmentsByDoctor(doctorId));
                 case "2" -> viewPatientDetails(scanner, user);
                 case "3" -> createMedicalRecord(scanner, doctorId);
@@ -42,21 +44,16 @@ public class DoctorMenu {
                 case "5" -> viewPatientRecords(scanner, doctorId);
                 case "0" -> back = true;
                 default  -> System.out.println("Invalid choice.");
-            } } catch (IllegalArgumentException | SecurityException exception) {
+                }
+            } catch (HospitalException | IllegalArgumentException exception) {
                 System.out.println("Operation failed: " + exception.getMessage());
             }
         }
     }
 
-    /**
-     * Shows only patients who have had at least one appointment with this doctor,
-     * collected as distinct patients (no duplicates) using a LinkedHashMap keyed by patientId.
-     * The selected patient is then displayed including their linkedId (login ID).
-     */
     private static void viewPatientDetails(Scanner scanner, User user) {
         int doctorId = user.getLinkedId();
 
-        // Collect distinct patients from this doctor's appointments
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
         appointmentLF.getAppointmentsByDoctor(doctorId).stream()
                 .map(Appointment::getPatient)
@@ -85,7 +82,6 @@ public class DoctorMenu {
             return;
         }
 
-        // Print patient details; linkedId shown so the doctor can refer to login ID if needed
         TablePrinter.printPatientWithLinkedId(p);
     }
 
@@ -119,20 +115,17 @@ public class DoctorMenu {
     private static String readValidRecordDate(Scanner scanner) {
         while (true) {
             String date = InputHelper.readText(scanner, "Record date (yyyy-MM-dd, today only): ");
-            if (ValidationUtil.isValidDate(date) && java.time.LocalDate.now().toString().equals(date)) return date;
+            if (ValidationUtil.isValidDate(date)
+                    && java.time.LocalDate.now().toString().equals(date)) {
+                return date;
+            }
             System.out.println("Invalid record date. Enter today's date in yyyy-MM-dd format.");
         }
     }
 
-    /**
-     * Before prompting for a Record ID, first asks for the patient, then shows only
-     * records that belong to BOTH that patient AND the logged-in doctor.
-     * This prevents prescribing against another doctor's record.
-     */
     private static void prescribeMedicine(Scanner scanner, User user) {
         int doctorId = user.getLinkedId();
 
-        // Step 1: choose the patient from this doctor's own patient list
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
         appointmentLF.getAppointmentsByDoctor(doctorId).stream()
                 .map(Appointment::getPatient)
@@ -150,7 +143,6 @@ public class DoctorMenu {
         TablePrinter.printPatients(myPatients);
         int patientId = InputHelper.readInt(scanner, "Patient ID to prescribe for: ");
 
-        // Step 2: show only this doctor's own records for that patient
         List<MedicalRecord> myRecords = medicalRecordLF.getRecordsByPatient(patientId)
                 .stream()
                 .filter(r -> r.getDoctor().getDoctorId() == doctorId)
@@ -164,7 +156,6 @@ public class DoctorMenu {
         System.out.println("\nYour medical records for this patient:");
         TablePrinter.printMedicalRecords(myRecords);
 
-        // Step 3: prescribe against the chosen record
         int recordId = InputHelper.readInt(scanner, "Medical Record ID to prescribe against: ");
         MedicalRecord record = medicalRecordLF.getRecordById(recordId);
 
@@ -191,7 +182,9 @@ public class DoctorMenu {
     private static String readRequiredText(Scanner scanner, String prompt) {
         while (true) {
             String value = InputHelper.readText(scanner, prompt);
-            if (ValidationUtil.isNonBlank(value)) return value;
+            if (ValidationUtil.isNonBlank(value)) {
+                return value;
+            }
             System.out.println("This field is required.");
         }
     }

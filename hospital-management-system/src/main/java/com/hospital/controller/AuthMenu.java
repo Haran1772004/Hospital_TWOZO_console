@@ -1,5 +1,6 @@
 package com.hospital.controller;
 
+import com.hospital.exception.HospitalException;
 import com.hospital.localfunctions.DepartmentLF;
 import com.hospital.impl.DepartmentLFImpl;
 import com.hospital.model.AccountStatus;
@@ -54,7 +55,7 @@ public final class AuthMenu {
                     scanner,
                     com.hospital.service.AuthService.login(username, password)
             );
-        } catch (RuntimeException exception) {
+        } catch (HospitalException | IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
         }
     }
@@ -103,7 +104,7 @@ public final class AuthMenu {
                     "Patient registration submitted. Await admin approval before logging in."
             );
 
-        } catch (IllegalArgumentException exception) {
+        } catch (HospitalException | IllegalArgumentException exception) {
             System.out.println("Registration failed: " + exception.getMessage());
         }
     }
@@ -162,7 +163,7 @@ public final class AuthMenu {
                     "Doctor registration submitted. Await admin approval before logging in."
             );
 
-        } catch (IllegalArgumentException exception) {
+        } catch (HospitalException | IllegalArgumentException exception) {
             System.out.println("Registration failed: " + exception.getMessage());
         }
     }
@@ -221,7 +222,7 @@ public final class AuthMenu {
 
             try {
                 return Gender.valueOf(value.toUpperCase()).name();
-            } catch (RuntimeException exception) {
+            } catch (IllegalArgumentException exception) {
                 System.out.println(
                         "Invalid gender: choose MALE, FEMALE, or OTHER."
                 );

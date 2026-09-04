@@ -1,5 +1,6 @@
 package com.hospital.controller;
 
+import com.hospital.exception.HospitalException;
 import com.hospital.localfunctions.*;
 import com.hospital.impl.*;
 import com.hospital.model.Department;
@@ -44,7 +45,8 @@ public class AdminMenu {
 
             String choice = scanner.nextLine().trim();
 
-            try { switch (choice) {
+            try {
+                switch (choice) {
                 case "1" -> addDepartment(scanner);
                 case "2" -> updateDepartment(scanner);
                 case "3" -> deactivateDepartment(scanner);
@@ -58,7 +60,8 @@ public class AdminMenu {
                 case "11" -> adminService.viewHospitalRecords();
                 case "0" -> back = true;
                 default -> System.out.println("Invalid choice.");
-            } } catch (IllegalArgumentException | SecurityException exception) {
+                }
+            } catch (HospitalException | IllegalArgumentException exception) {
                 System.out.println("Operation failed: " + exception.getMessage());
             }
         }
@@ -107,7 +110,6 @@ public class AdminMenu {
 
         Department department = new Department(0, name, description, AccountStatus.ACTIVE);
         departmentLF.addDepartment(department);
-        // System.out.println("Department added successfully.");
     }
 
     private static void updateDepartment(Scanner scanner) {
@@ -151,7 +153,6 @@ public class AdminMenu {
         }
 
         departmentLF.updateDepartment(existing);
-        // System.out.println("Department updated successfully.");
     }
 
     private static void deactivateDepartment(Scanner scanner) {
@@ -166,14 +167,29 @@ public class AdminMenu {
 
     private static void reviewPendingDoctors(Scanner scanner) {
         List<User> pending = userLF.getPendingUsersByRole("DOCTOR");
-        if (pending.isEmpty()) { System.out.println("No pending doctor registrations."); return; }
+        if (pending.isEmpty()) {
+            System.out.println("No pending doctor registrations.");
+            return;
+        }
         for (User user : pending) {
             Doctor doctor = doctorLF.getDoctorById(user.getLinkedId());
             System.out.println("Username: " + user.getUsername() + ", Doctor: " + (doctor == null ? "N/A" : doctor.getName()));
             String action = InputHelper.readText(scanner, "Approve (A) or reject (R): ");
-            if ("A".equalsIgnoreCase(action)) { userLF.updateStatus(user.getUsername(), AccountStatus.ACTIVE); if (doctor != null) doctor.setStatus(AccountStatus.ACTIVE); System.out.println("Doctor approved."); }
-            else if ("R".equalsIgnoreCase(action)) { userLF.updateStatus(user.getUsername(), AccountStatus.REJECTED); if (doctor != null) doctor.setStatus(AccountStatus.INACTIVE); System.out.println("Doctor rejected."); }
-            else System.out.println("Invalid action; left pending.");
+            if ("A".equalsIgnoreCase(action)) {
+                userLF.updateStatus(user.getUsername(), AccountStatus.ACTIVE);
+                if (doctor != null) {
+                    doctor.setStatus(AccountStatus.ACTIVE);
+                }
+                System.out.println("Doctor approved.");
+            } else if ("R".equalsIgnoreCase(action)) {
+                userLF.updateStatus(user.getUsername(), AccountStatus.REJECTED);
+                if (doctor != null) {
+                    doctor.setStatus(AccountStatus.INACTIVE);
+                }
+                System.out.println("Doctor rejected.");
+            } else {
+                System.out.println("Invalid action; left pending.");
+            }
         }
     }
 

@@ -4,6 +4,8 @@ package com.hospital.service;
 import com.hospital.impl.DoctorLFImpl;
 import com.hospital.impl.PatientLFImpl;
 import com.hospital.impl.UserLFImpl;
+import com.hospital.exception.BusinessRuleViolationException;
+import com.hospital.exception.DuplicateResourceException;
 import com.hospital.localfunctions.DoctorLF;
 import com.hospital.localfunctions.PatientLF;
 import com.hospital.localfunctions.UserLF;
@@ -17,9 +19,6 @@ import com.hospital.util.PasswordUtil;
 import com.hospital.util.ValidationUtil;
 
 public class RegistrationService {
-// It is a dependency injection of the local functions for patients, doctors, and users. 
-// This allows for easier testing and flexibility in changing the underlying implementations if needed. 
-//so we can easily swap out the implementations of these local functions without changing the RegistrationService code itself.  
     private final PatientLF patientLF;
     private final DoctorLF doctorLF;
     private final UserLF userLF;
@@ -53,11 +52,11 @@ public class RegistrationService {
         ensureUsernameAvailable(username);
 
         if (!isPatientEmailAvailable(email)) {
-            throw new IllegalArgumentException("Patient email already exists");
+            throw new DuplicateResourceException("Patient email already exists");
         }
 
         if (!isPatientPhoneAvailable(phone)) {
-            throw new IllegalArgumentException("Patient phone already exists");
+            throw new DuplicateResourceException("Patient phone already exists");
         }
 
         Patient patient = new Patient(
@@ -95,7 +94,7 @@ public class RegistrationService {
         validateDoctor(name, phone, email, specialization);
 
         if (department == null || AccountStatus.ACTIVE != department.getStatus()) {
-            throw new IllegalArgumentException(
+            throw new BusinessRuleViolationException(
                     "Doctor must belong to an active department");
         }
 
@@ -106,11 +105,11 @@ public class RegistrationService {
         ensureUsernameAvailable(username);
 
         if (!isDoctorEmailAvailable(email)) {
-            throw new IllegalArgumentException("Doctor email already exists");
+            throw new DuplicateResourceException("Doctor email already exists");
         }
 
         if (!isDoctorPhoneAvailable(phone)) {
-            throw new IllegalArgumentException("Doctor phone already exists");
+            throw new DuplicateResourceException("Doctor phone already exists");
         }
 
         Doctor doctor = new Doctor(
@@ -212,7 +211,7 @@ public class RegistrationService {
 
     private void ensureUsernameAvailable(String username) {
         if (userLF.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new DuplicateResourceException("Username already exists");
         }
     }
 

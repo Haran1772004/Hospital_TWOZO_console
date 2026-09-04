@@ -1,5 +1,6 @@
 package com.hospital.controller;
 
+import com.hospital.exception.HospitalException;
 import com.hospital.model.User;
 import com.hospital.service.PatientService;
 import com.hospital.util.TablePrinter;
@@ -28,8 +29,8 @@ public class PatientMenu {
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose option: ");
 
-            try { switch (scanner.nextLine().trim()) {
-                // Show personal details + own login credentials (safe: patient views only their own)
+            try {
+                switch (scanner.nextLine().trim()) {
                 case "1" -> patientService.viewPersonalDetailsWithCredentials(patientId, user);
                 case "2" -> TablePrinter.printAppointments(patientService.viewAppointments(patientId));
                 case "3" -> TablePrinter.printMedicalRecords(patientService.viewMedicalRecords(patientId));
@@ -37,7 +38,8 @@ public class PatientMenu {
                 case "5" -> patientService.viewFullProfile(patientId, user);
                 case "0" -> back = true;
                 default  -> System.out.println("Invalid choice.");
-            } } catch (IllegalArgumentException | SecurityException exception) {
+                }
+            } catch (HospitalException | IllegalArgumentException exception) {
                 System.out.println("Operation failed: " + exception.getMessage());
             }
         }

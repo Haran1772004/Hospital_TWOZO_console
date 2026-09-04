@@ -1,5 +1,6 @@
 package com.hospital.controller;
 
+import com.hospital.exception.HospitalException;
 import com.hospital.localfunctions.BillLF;
 import com.hospital.impl.BillLFImpl;
 import com.hospital.localfunctions.AppointmentLF;
@@ -38,14 +39,16 @@ public class BillingMenu {
 
             String choice = scanner.nextLine().trim();
 
-            try { switch (choice) {
+            try {
+                switch (choice) {
                 case "1" -> generateBill(scanner);
                 case "2" -> recordPayment(scanner);
                 case "3" -> viewPaymentHistory(scanner);
                 case "4" -> TablePrinter.printBills(billLF.getAllBills());
                 case "0" -> back = true;
                 default -> System.out.println("Invalid choice.");
-            } } catch (IllegalArgumentException | SecurityException exception) {
+                }
+            } catch (HospitalException | IllegalArgumentException exception) {
                 System.out.println("Operation failed: " + exception.getMessage());
             }
         }

@@ -1,5 +1,7 @@
 package com.hospital;
 
+import com.hospital.exception.BusinessRuleViolationException;
+import com.hospital.exception.DuplicateResourceException;
 import com.hospital.localfunctions.PatientLF;
 import com.hospital.localfunctions.DoctorLF;
 import com.hospital.localfunctions.UserLF;
@@ -52,7 +54,8 @@ public class SecurityAndValidationTest extends TestCase {
         try {
             userLF.addUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 2));
             fail("Duplicate username should be rejected");
-        } catch (IllegalArgumentException expected) { }
+        } catch (DuplicateResourceException expected) {
+        }
 
         PatientLF patientLF = new PatientLFImpl();
         String suffix = Long.toHexString(System.nanoTime());
@@ -63,7 +66,8 @@ public class SecurityAndValidationTest extends TestCase {
             patientLF.addPatient(new Patient(0, "Another Person", "1991-01-01", "FEMALE", patient.getPhone(),
                     "other" + suffix + "@example.com", "Address", "ACTIVE"));
             fail("Duplicate patient phone should be rejected");
-        } catch (IllegalArgumentException expected) { }
+        } catch (DuplicateResourceException expected) {
+        }
     }
 
     public void testPatientRegistrationLinksAccount() {
@@ -86,7 +90,8 @@ public class SecurityAndValidationTest extends TestCase {
                     "Cardiology", "5550109999", "doctor" + suffix + "@example.com",
                     new Department(1, "Cardiology", "Heart care", "INACTIVE"));
             fail("Inactive department should be rejected");
-        } catch (IllegalArgumentException expected) { }
+        } catch (BusinessRuleViolationException expected) {
+        }
     }
 
     public void testPositiveNumber() {
@@ -102,6 +107,12 @@ public class SecurityAndValidationTest extends TestCase {
     }
 
     public void testBillingRejectsOverpaymentAndTransitionsStatus() {
+        // Fix: compute "today" dynamically instead of hardcoding a date string.
+        // BillLFImpl.generateBill() requires the bill date to exactly equal
+        // LocalDate.now(), so a hardcoded literal only works on the one day
+        // it was written and fails every day after (which is what broke here).
+        String today = LocalDate.now().toString();
+
         Patient patient = new Patient(0, "Bill Patient", "1980-01-01", "FEMALE", "5550199999",
                 "bill" + System.nanoTime() + "@example.com", "Address", "ACTIVE");
         new PatientLFImpl().addPatient(patient);
@@ -112,15 +123,15 @@ public class SecurityAndValidationTest extends TestCase {
         Appointment appointment = new Appointment(0, patient, doctor, "2099-09-03", "2:00 PM", AppointmentStatus.SCHEDULED);
         new com.hospital.impl.AppointmentLFImpl().bookAppointment(appointment);
         Bill bill = new Bill(0, patient, new BigDecimal("100"), BigDecimal.ZERO, BigDecimal.ZERO,
-                BigDecimal.ZERO, "2026-09-03", "UNPAID");
+                BigDecimal.ZERO, today, "UNPAID");
         bill.setAppointment(appointment);
         new BillLFImpl().generateBill(bill);
         BillingService billingService = new BillingService();
-        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("40"), "2026-09-03", "CASH"));
+        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("40"), today, "CASH"));
         assertEquals(BillStatus.PARTIAL, bill.getStatus());
-        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("70"), "2026-09-03", "CARD"));
+        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("70"), today, "CARD"));
         assertEquals(BillStatus.PARTIAL, bill.getStatus());
-        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("60"), "2026-09-03", "UPI"));
+        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("60"), today, "UPI"));
         assertEquals(BillStatus.PAID, bill.getStatus());
     }
 
@@ -143,7 +154,8 @@ public class SecurityAndValidationTest extends TestCase {
         try {
             new PrescriptionLFImpl().addPrescription(new Prescription(0, record.getRecordId(), "", "once", "5 days"));
             fail("Blank medicine name should be rejected");
-        } catch (IllegalArgumentException expected) { }
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     private static final class MedicalRecordLFAssertions {
@@ -152,7 +164,8 @@ public class SecurityAndValidationTest extends TestCase {
                 new MedicalRecordLFImpl().createMedicalRecord(new MedicalRecord(0, appointment, patient, doctor,
                     "Diagnosis", "Notes", LocalDate.now().minusDays(1).toString()));
                 fail("Previous record date should be rejected");
-            } catch (IllegalArgumentException expected) { }
+            } catch (BusinessRuleViolationException expected) {
+            }
         }
     }
 
@@ -167,7 +180,8 @@ public class SecurityAndValidationTest extends TestCase {
                 LF.addDoctor(new Doctor(0, "Dr Other", "Medicine", doctor.getPhone(),
                         "other" + suffix + "@example.com", doctor.getDepartment(), "ACTIVE"));
                 fail("Duplicate doctor phone should be rejected");
-            } catch (IllegalArgumentException expected) { }
+            } catch (DuplicateResourceException expected) {
+            }
         }
     }
 }

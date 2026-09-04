@@ -8,6 +8,11 @@
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/controller/PatientMenu.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/controller/ReceptionistMenu.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/exception/AuthenticationException.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/exception/AuthorizationException.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/exception/BusinessRuleViolationException.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/exception/DuplicateResourceException.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/exception/HospitalException.java
+/home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/exception/ResourceNotFoundException.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/impl/AppointmentLFImpl.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/impl/BillLFImpl.java
 /home/haris/Projects/twozo/HOSPITAL/hospital-management-system/src/main/java/com/hospital/impl/DepartmentLFImpl.java
