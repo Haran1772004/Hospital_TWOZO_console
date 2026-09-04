@@ -5,7 +5,6 @@ import com.hospital.impl.*;
 import com.hospital.localfunctions.*;
 import com.hospital.model.*;
 import com.hospital.util.TablePrinter;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +14,6 @@ public class PatientService {
   private final AppointmentLF appointmentLF = new AppointmentLFImpl();
   private final MedicalRecordLF medicalRecordLF = new MedicalRecordLFImpl();
   private final PrescriptionLF prescriptionLF = new PrescriptionLFImpl();
-  private final BillLF billLF = new BillLFImpl();
-  private final PaymentLF paymentLF = new PaymentLFImpl();
 
   public Patient viewPersonalDetails(int patientId) {
     ensurePatientAccess(patientId);
@@ -59,14 +56,6 @@ public class PatientService {
     return allPrescriptions;
   }
 
-  private BigDecimal getTotalPaid(int billId) {
-    BigDecimal total = BigDecimal.ZERO;
-    for (Payment p : paymentLF.getPaymentsByBill(billId)) {
-      total = total.add(p.getAmountPaid());
-    }
-    return total;
-  }
-
   public void viewFullProfile(int patientId, User loggedInUser) {
 
     ensurePatientAccess(patientId);
@@ -95,33 +84,6 @@ public class PatientService {
 
     System.out.println("\n--- Prescriptions ---");
     TablePrinter.printPrescriptions(viewPrescriptions(patientId));
-
-    System.out.println("\n--- Billing Information ---");
-    List<Bill> bills = billLF.getBillsByPatient(patientId);
-    if (bills.isEmpty()) {
-      System.out.println("No bills found.");
-    } else {
-      TablePrinter.printBills(bills);
-
-      for (Bill bill : bills) {
-        System.out.println(
-            "\n  Payments for Bill #"
-                + bill.getBillId()
-                + " (Total: "
-                + bill.getTotalAmount()
-                + ")");
-        List<Payment> payments = paymentLF.getPaymentsByBill(bill.getBillId());
-        if (payments.isEmpty()) {
-          System.out.println("  No payments recorded yet.");
-        } else {
-          TablePrinter.printPayments(payments);
-        }
-        BigDecimal totalPaid = getTotalPaid(bill.getBillId());
-        BigDecimal remaining = bill.getTotalAmount().subtract(totalPaid);
-        System.out.println("  Total Paid     : " + totalPaid);
-        System.out.println("  Remaining Bal  : " + remaining);
-      }
-    }
 
     System.out.println("\n=======================================");
   }

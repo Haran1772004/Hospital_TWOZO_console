@@ -14,7 +14,6 @@ public class MainMenu {
 
             case "ADMIN" -> AdminMenu.show(scanner);
             case "RECEPTIONIST" -> ReceptionistMenu.show(scanner);
-            case "BILLING" -> BillingMenu.show(scanner);
             case "DOCTOR" -> DoctorMenu.show(scanner, user);
             case "PATIENT" -> PatientMenu.show(scanner, user);
             default -> System.out.println("Unknown user role.");

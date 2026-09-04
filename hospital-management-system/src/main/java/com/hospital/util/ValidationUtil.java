@@ -1,7 +1,5 @@
 package com.hospital.util;
 
-import com.hospital.model.PaymentMethod;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -81,19 +79,6 @@ public final class ValidationUtil {
     return parseTime(time) != null;
   }
 
-  public static boolean isValidPaymentMethod(String method) {
-    if (method == null || method.isBlank()) {
-      return false;
-    }
-
-    try {
-      PaymentMethod.valueOf(method.trim().toUpperCase(Locale.ROOT));
-      return true;
-    } catch (IllegalArgumentException exception) {
-      return false;
-    }
-  }
-
   public static boolean isValidPassword(String password) {
     return password != null && password.length() >= PASSWORD_MIN;
   }
@@ -111,10 +96,6 @@ public final class ValidationUtil {
         && password.matches(".*[A-Za-z].*")
         && password.matches(".*\\d.*")
         && password.matches(".*[^A-Za-z0-9].*");
-  }
-
-  public static boolean isPositiveNumber(BigDecimal value) {
-    return value != null && value.compareTo(BigDecimal.ZERO) > 0;
   }
 
   public static boolean isValidId(Integer id) {

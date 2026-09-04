@@ -28,14 +28,6 @@ public class UserLFImpl implements UserLF {
             0,
             AccountStatus.ACTIVE));
 
-    users.put(
-        "billing",
-        new User(
-            "billing",
-            PasswordUtil.hashPassword("billing123"),
-            "BILLING",
-            0,
-            AccountStatus.ACTIVE));
   }
 
   public void addUser(User user) {

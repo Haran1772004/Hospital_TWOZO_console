@@ -7,26 +7,20 @@ import com.hospital.localfunctions.DoctorLF;
 import com.hospital.localfunctions.UserLF;
 import com.hospital.impl.PatientLFImpl;
 import com.hospital.impl.DoctorLFImpl;
-import com.hospital.impl.BillLFImpl;
 import com.hospital.impl.UserLFImpl;
 import com.hospital.impl.AppointmentLFImpl;
 import com.hospital.impl.MedicalRecordLFImpl;
 import com.hospital.impl.PrescriptionLFImpl;
-import com.hospital.model.Bill;
 import com.hospital.model.Department;
 import com.hospital.model.Appointment;
 import com.hospital.model.Doctor;
 import com.hospital.model.Patient;
-import com.hospital.model.Payment;
 import com.hospital.model.User;
-import com.hospital.service.BillingService;
 import com.hospital.service.RegistrationService;
 import com.hospital.util.PasswordUtil;
 import com.hospital.util.ValidationUtil;
 import junit.framework.TestCase;
-import java.math.BigDecimal;
 import com.hospital.model.AppointmentStatus;
-import com.hospital.model.BillStatus;
 import com.hospital.model.MedicalRecord;
 import com.hospital.model.Prescription;
 import java.time.LocalDate;
@@ -94,45 +88,8 @@ public class SecurityAndValidationTest extends TestCase {
         }
     }
 
-    public void testPositiveNumber() {
-        assertTrue(ValidationUtil.isPositiveNumber(new BigDecimal("1.00")));
-        assertFalse(ValidationUtil.isPositiveNumber(BigDecimal.ZERO));
-        assertFalse(ValidationUtil.isPositiveNumber(new BigDecimal("-1")));
-        assertTrue(ValidationUtil.isValidPaymentMethod("cash"));
-        assertFalse(ValidationUtil.isValidPaymentMethod("bitcoin"));
-    }
-
     public void testDoctorDuplicatePhoneRejected() {
         DoctorLFAssertions.addUniqueDoctor();
-    }
-
-    public void testBillingRejectsOverpaymentAndTransitionsStatus() {
-        // Fix: compute "today" dynamically instead of hardcoding a date string.
-        // BillLFImpl.generateBill() requires the bill date to exactly equal
-        // LocalDate.now(), so a hardcoded literal only works on the one day
-        // it was written and fails every day after (which is what broke here).
-        String today = LocalDate.now().toString();
-
-        Patient patient = new Patient(0, "Bill Patient", "1980-01-01", "FEMALE", "5550199999",
-                "bill" + System.nanoTime() + "@example.com", "Address", "ACTIVE");
-        new PatientLFImpl().addPatient(patient);
-        Doctor doctor = new Doctor(0, "Bill Doctor", "Medicine", "5550198888",
-            "billdoctor" + System.nanoTime() + "@example.com",
-            new Department(1, "Billing", "Care", "ACTIVE"), "ACTIVE");
-        new DoctorLFImpl().addDoctor(doctor);
-        Appointment appointment = new Appointment(0, patient, doctor, "2099-09-03", "2:00 PM", AppointmentStatus.SCHEDULED);
-        new com.hospital.impl.AppointmentLFImpl().bookAppointment(appointment);
-        Bill bill = new Bill(0, patient, new BigDecimal("100"), BigDecimal.ZERO, BigDecimal.ZERO,
-                BigDecimal.ZERO, today, "UNPAID");
-        bill.setAppointment(appointment);
-        new BillLFImpl().generateBill(bill);
-        BillingService billingService = new BillingService();
-        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("40"), today, "CASH"));
-        assertEquals(BillStatus.PARTIAL, bill.getStatus());
-        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("70"), today, "CARD"));
-        assertEquals(BillStatus.PARTIAL, bill.getStatus());
-        billingService.makePayment(new Payment(0, bill.getBillId(), new BigDecimal("60"), today, "UPI"));
-        assertEquals(BillStatus.PAID, bill.getStatus());
     }
 
     public void testMedicalRecordPrescriptionAndTodayValidation() {
