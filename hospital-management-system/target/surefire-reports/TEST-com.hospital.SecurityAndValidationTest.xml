@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="8" failures="0" name="com.hospital.SecurityAndValidationTest" time="4.761" errors="0" skipped="0">
+<testsuite tests="8" failures="0" name="com.hospital.SecurityAndValidationTest" time="5.462" errors="0" skipped="0">
   <properties>
     <property name="jansi.mode" value="force"/>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
@@ -30,7 +30,7 @@
     <property name="java.class.version" value="61.0"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="os.version" value="6.6.87.2-microsoft-standard-WSL2"/>
+    <property name="os.version" value="6.18.33.2-microsoft-standard-WSL2"/>
     <property name="library.jansi.path" value="/usr/share/maven/lib/jansi-native"/>
     <property name="user.home" value="/home/haris"/>
     <property name="user.timezone" value="Etc/UTC"/>
@@ -58,12 +58,12 @@
     <property name="sun.cpu.endian" value="little"/>
     <property name="sun.stdout.encoding" value="UTF-8"/>
   </properties>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testBcryptAndStrictValidation" time="1.564"/>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testDuplicateUsernameAndPatientPhoneRejected" time="2.2"/>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testPatientRegistrationLinksAccount" time="0.857"/>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testInactiveDepartmentRejectsDoctorRegistration" time="0.002"/>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testPositiveNumber" time="0.002"/>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testDoctorDuplicatePhoneRejected" time="0.005"/>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testBillingRejectsOverpaymentAndTransitionsStatus" time="0.108"/>
-  <testcase classname="com.hospital.SecurityAndValidationTest" name="testMedicalRecordPrescriptionAndTodayValidation" time="0.023"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testBcryptAndStrictValidation" time="1.578"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testDuplicateUsernameAndPatientPhoneRejected" time="2.702"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testPatientRegistrationLinksAccount" time="0.916"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testInactiveDepartmentRejectsDoctorRegistration" time="0.003"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testPositiveNumber" time="0.102"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testDoctorDuplicatePhoneRejected" time="0.013"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testBillingRejectsOverpaymentAndTransitionsStatus" time="0.124"/>
+  <testcase classname="com.hospital.SecurityAndValidationTest" name="testMedicalRecordPrescriptionAndTodayValidation" time="0.024"/>
 </testsuite>
