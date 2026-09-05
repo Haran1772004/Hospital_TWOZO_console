@@ -29,7 +29,7 @@ public class MedicalRecord {
     this.recordDate = recordDate;
   }
 
-  public int getRecordId() {
+  public int takeRecordId() {
     return recordId;
   }
 
@@ -37,7 +37,7 @@ public class MedicalRecord {
     this.recordId = recordId;
   }
 
-  public Appointment getAppointment() {
+  public Appointment takeAppointment() {
     return appointment;
   }
 
@@ -45,7 +45,7 @@ public class MedicalRecord {
     this.appointment = appointment;
   }
 
-  public Patient getPatient() {
+  public Patient takePatient() {
     return patient;
   }
 
@@ -53,7 +53,7 @@ public class MedicalRecord {
     this.patient = patient;
   }
 
-  public Doctor getDoctor() {
+  public Doctor takeDoctor() {
     return doctor;
   }
 
@@ -61,7 +61,7 @@ public class MedicalRecord {
     this.doctor = doctor;
   }
 
-  public String getDiagnosis() {
+  public String takeDiagnosis() {
     return diagnosis;
   }
 
@@ -69,7 +69,7 @@ public class MedicalRecord {
     this.diagnosis = diagnosis;
   }
 
-  public String getTreatmentNotes() {
+  public String takeTreatmentNotes() {
     return treatmentNotes;
   }
 
@@ -77,7 +77,7 @@ public class MedicalRecord {
     this.treatmentNotes = treatmentNotes;
   }
 
-  public String getRecordDate() {
+  public String takeRecordDate() {
     return recordDate;
   }
 
@@ -90,11 +90,11 @@ public class MedicalRecord {
         + "recordId="
         + recordId
         + ", appointmentId="
-        + (appointment != null ? appointment.getAppointmentId() : null)
+        + (appointment != null ? appointment.takeAppointmentId() : null)
         + ", patient="
-        + (patient != null ? patient.getName() : null)
+        + (patient != null ? patient.takeName() : null)
         + ", doctor="
-        + (doctor != null ? doctor.getName() : null)
+        + (doctor != null ? doctor.takeName() : null)
         + ", diagnosis='"
         + diagnosis
         + '\''

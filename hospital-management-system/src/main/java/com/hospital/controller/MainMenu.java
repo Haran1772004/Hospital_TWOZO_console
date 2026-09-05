@@ -8,9 +8,9 @@ public class MainMenu {
 
     public static void start(Scanner scanner, User user) {
 
-        System.out.println("\nLogged in as " + user.getUsername() + " (" + user.getRole() + ")");
+        System.out.println("\nLogged in as " + user.takeUsername() + " (" + user.takeRole() + ")");
 
-        switch (user.getRole()) {
+        switch (user.takeRole()) {
 
             case "ADMIN" -> AdminMenu.show(scanner);
             case "RECEPTIONIST" -> ReceptionistMenu.show(scanner);

@@ -11,11 +11,11 @@ public interface AppointmentLF {
 
     boolean isDoctorAvailable(int doctorId, String date, String time);
 
-    List<Appointment> getAppointmentsByPatient(int patientId);
+    List<Appointment> takeAppointmentsByPatient(int patientId);
 
-    List<Appointment> getAppointmentsByDoctor(int doctorId);
+    List<Appointment> takeAppointmentsByDoctor(int doctorId);
 
-    List<Appointment> getTodaysAppointments();
+    List<Appointment> takeTodaysAppointments();
 
-    List<Appointment> getAllAppointments();
+    List<Appointment> takeAllAppointments();
 }

@@ -22,14 +22,14 @@ public class PatientLFImpl implements PatientLF {
 
         ensureUnique(patient);
 
-        if (patient.getPatientId() == 0) {
+        if (patient.takePatientId() == 0) {
             patient.setPatientId(nextId.getAndIncrement());
         }
 
         patients.add(patient);
 
         System.out.println(
-                "Patient added successfully (ID: " + patient.getPatientId() + ")"
+                "Patient added successfully (ID: " + patient.takePatientId() + ")"
         );
     }
 
@@ -39,9 +39,9 @@ public class PatientLFImpl implements PatientLF {
             throw new IllegalArgumentException("Patient is required");
         }
 
-        if (getPatientById(patient.getPatientId()) == null) {
+        if (takePatientById(patient.takePatientId()) == null) {
             System.out.println(
-                    "Patient not found with ID: " + patient.getPatientId()
+                    "Patient not found with ID: " + patient.takePatientId()
             );
         } else {
             ensureUnique(patient);
@@ -51,14 +51,14 @@ public class PatientLFImpl implements PatientLF {
 
     @Override
     public void removePatient(int id) {
-        if (!patients.removeIf(patient -> patient.getPatientId() == id)) {
+        if (!patients.removeIf(patient -> patient.takePatientId() == id)) {
             System.out.println("Patient not found with ID: " + id);
         }
     }
 
     @Override
     public void deactivatePatient(int id) {
-        Patient patient = getPatientById(id);
+        Patient patient = takePatientById(id);
 
         if (patient == null) {
             System.out.println("Patient not found with ID: " + id);
@@ -70,7 +70,7 @@ public class PatientLFImpl implements PatientLF {
 
     @Override
     public void activatePatient(int id) {
-        Patient patient = getPatientById(id);
+        Patient patient = takePatientById(id);
 
         if (patient == null) {
             System.out.println("Patient not found with ID: " + id);
@@ -81,29 +81,29 @@ public class PatientLFImpl implements PatientLF {
     }
 
     @Override
-    public Patient getPatientById(int id) {
+    public Patient takePatientById(int id) {
         return patients.stream()
-                .filter(patient -> patient.getPatientId() == id)
+                .filter(patient -> patient.takePatientId() == id)
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public List<Patient> getAllPatients() {
+    public List<Patient> takeAllPatients() {
         return new ArrayList<>(patients);
     }
 
     private void ensureUnique(Patient candidate) {
-        String email = normalizeEmail(candidate.getEmail());
-        String phone = normalizePhone(candidate.getPhone());
+        String email = normalizeEmail(candidate.takeEmail());
+        String phone = normalizePhone(candidate.takePhone());
 
         boolean duplicate = patients.stream()
                 .filter(existing ->
-                        existing.getPatientId() != candidate.getPatientId()
+                        existing.takePatientId() != candidate.takePatientId()
                 )
                 .anyMatch(existing ->
-                        normalizeEmail(existing.getEmail()).equals(email)
-                                || normalizePhone(existing.getPhone()).equals(phone)
+                        normalizeEmail(existing.takeEmail()).equals(email)
+                                || normalizePhone(existing.takePhone()).equals(phone)
                 );
 
         if (duplicate) {

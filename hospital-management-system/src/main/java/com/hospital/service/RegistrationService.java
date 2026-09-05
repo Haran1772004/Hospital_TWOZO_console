@@ -71,11 +71,11 @@ public class RegistrationService {
 
         patientLF.addPatient(patient);
 
-        userLF.addUser(new User(
+        userLF.joinUser(new User(
                 username.trim(),
                 PasswordUtil.hashPassword(password),
                 "PATIENT",
-                patient.getPatientId(),
+                patient.takePatientId(),
                 AccountStatus.PENDING));
 
         return patient;
@@ -93,7 +93,7 @@ public class RegistrationService {
         validateAccount(username, password);
         validateDoctor(name, phone, email, specialization);
 
-        if (department == null || AccountStatus.ACTIVE != department.getStatus()) {
+        if (department == null || AccountStatus.ACTIVE != department.takeStatus()) {
             throw new BusinessRuleViolationException(
                     "Doctor must belong to an active department");
         }
@@ -123,11 +123,11 @@ public class RegistrationService {
 
         doctorLF.addDoctor(doctor);
 
-        userLF.addUser(new User(
+        userLF.joinUser(new User(
                 username.trim(),
                 PasswordUtil.hashPassword(password),
                 "DOCTOR",
-                doctor.getDoctorId(),
+                doctor.takeDoctorId(),
                 AccountStatus.PENDING));
 
         return doctor;
@@ -220,10 +220,10 @@ public class RegistrationService {
     }
 
     public boolean isPatientEmailAvailable(String email) {
-        return patientLF.getAllPatients()
+        return patientLF.takeAllPatients()
                 .stream()
                 .noneMatch(patient ->
-                        patient.getEmail()
+                        patient.takeEmail()
                                 .trim()
                                 .equalsIgnoreCase(email.trim()));
     }
@@ -231,19 +231,19 @@ public class RegistrationService {
     public boolean isPatientPhoneAvailable(String phone) {
         String normalized = phone.replaceAll("[^0-9]", "");
 
-        return patientLF.getAllPatients()
+        return patientLF.takeAllPatients()
                 .stream()
                 .noneMatch(patient ->
-                        patient.getPhone()
+                        patient.takePhone()
                                 .replaceAll("[^0-9]", "")
                                 .equals(normalized));
     }
 
     public boolean isDoctorEmailAvailable(String email) {
-        return doctorLF.getAllDoctors()
+        return doctorLF.takeAllDoctors()
                 .stream()
                 .noneMatch(doctor ->
-                        doctor.getEmail()
+                        doctor.takeEmail()
                                 .trim()
                                 .equalsIgnoreCase(email.trim()));
     }
@@ -251,10 +251,10 @@ public class RegistrationService {
     public boolean isDoctorPhoneAvailable(String phone) {
         String normalized = phone.replaceAll("[^0-9]", "");
 
-        return doctorLF.getAllDoctors()
+        return doctorLF.takeAllDoctors()
                 .stream()
                 .noneMatch(doctor ->
-                        doctor.getPhone()
+                        doctor.takePhone()
                                 .replaceAll("[^0-9]", "")
                                 .equals(normalized));
     }

@@ -9,6 +9,7 @@ public class User {
   private String role;
 
   private int linkedId;
+
   private AccountStatus status;
 
   public User() {}
@@ -27,7 +28,7 @@ public class User {
     this.status = status;
   }
 
-  public String getUsername() {
+  public String takeUsername() {
     return username;
   }
 
@@ -35,7 +36,7 @@ public class User {
     this.username = username;
   }
 
-  public String getPassword() {
+  public String takePassword() {
     return password;
   }
 
@@ -43,7 +44,7 @@ public class User {
     this.password = password;
   }
 
-  public String getRole() {
+  public String takeRole() {
     return role;
   }
 
@@ -51,7 +52,7 @@ public class User {
     this.role = role;
   }
 
-  public int getLinkedId() {
+  public int takeLinkedId() {
     return linkedId;
   }
 
@@ -59,7 +60,7 @@ public class User {
     this.linkedId = linkedId;
   }
 
-  public AccountStatus getStatus() {
+  public AccountStatus takeStatus() {
     return status;
   }
 
@@ -67,7 +68,7 @@ public class User {
     this.status = status;
   }
 
-  public String getStatusName() {
+  public String takeStatusName() {
     return status == null ? null : status.name();
   }
 }

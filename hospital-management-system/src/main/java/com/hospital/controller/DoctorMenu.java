@@ -22,7 +22,7 @@ public class DoctorMenu {
     private static final PrescriptionLF   prescriptionLF  = new PrescriptionLFImpl();
 
     public static void show(Scanner scanner, User user) {
-        int doctorId = user.getLinkedId();
+        int doctorId = user.takeLinkedId();
         boolean back = false;
 
         while (!back) {
@@ -37,7 +37,7 @@ public class DoctorMenu {
 
             try {
                 switch (scanner.nextLine().trim()) {
-                case "1" -> TablePrinter.printAppointments(appointmentLF.getAppointmentsByDoctor(doctorId));
+                case "1" -> TablePrinter.printAppointments(appointmentLF.takeAppointmentsByDoctor(doctorId));
                 case "2" -> viewPatientDetails(scanner, user);
                 case "3" -> createMedicalRecord(scanner, doctorId);
                 case "4" -> prescribeMedicine(scanner, user);
@@ -52,13 +52,13 @@ public class DoctorMenu {
     }
 
     private static void viewPatientDetails(Scanner scanner, User user) {
-        int doctorId = user.getLinkedId();
+        int doctorId = user.takeLinkedId();
 
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
-        appointmentLF.getAppointmentsByDoctor(doctorId).stream()
-                .map(Appointment::getPatient)
-                .filter(p -> p != null && AccountStatus.ACTIVE == p.getStatus())
-                .forEach(p -> distinctPatients.putIfAbsent(p.getPatientId(), p));
+        appointmentLF.takeAppointmentsByDoctor(doctorId).stream()
+                .map(Appointment::takePatient)
+                .filter(p -> p != null && AccountStatus.ACTIVE == p.takeStatus())
+                .forEach(p -> distinctPatients.putIfAbsent(p.takePatientId(), p));
 
         List<Patient> myPatients = new ArrayList<>(distinctPatients.values());
 
@@ -71,12 +71,12 @@ public class DoctorMenu {
         TablePrinter.printPatients(myPatients);
 
         int patientId = InputHelper.readInt(scanner, "Patient ID: ");
-        if (myPatients.stream().noneMatch(patient -> patient.getPatientId() == patientId)) {
+        if (myPatients.stream().noneMatch(patient -> patient.takePatientId() == patientId)) {
             System.out.println("You can only view patients who have appointments with you.");
             return;
         }
 
-        Patient p = patientLF.getPatientById(patientId);
+        Patient p = patientLF.takePatientById(patientId);
         if (p == null) {
             System.out.println("No patient found with ID: " + patientId);
             return;
@@ -87,25 +87,25 @@ public class DoctorMenu {
 
     private static void createMedicalRecord(Scanner scanner, int doctorId) {
         System.out.println("\nYour appointments:");
-        TablePrinter.printAppointments(appointmentLF.getAppointmentsByDoctor(doctorId));
+        TablePrinter.printAppointments(appointmentLF.takeAppointmentsByDoctor(doctorId));
 
         int appointmentId = InputHelper.readInt(scanner, "Appointment ID this record is for: ");
-        Appointment appointment = appointmentLF.getAllAppointments().stream()
-                .filter(a -> a.getAppointmentId() == appointmentId)
+        Appointment appointment = appointmentLF.takeAllAppointments().stream()
+                .filter(a -> a.takeAppointmentId() == appointmentId)
                 .findFirst().orElse(null);
 
         if (appointment == null) {
             System.out.println("No appointment found with that ID.");
             return;
         }
-        if (appointment.getDoctor().getDoctorId() != doctorId) {
+        if (appointment.takeDoctor().takeDoctorId() != doctorId) {
             System.out.println("You can only use your own appointments.");
             return;
         }
 
         String recordDate = readValidRecordDate(scanner);
         MedicalRecord record = new MedicalRecord(
-                0, appointment, appointment.getPatient(), appointment.getDoctor(),
+                0, appointment, appointment.takePatient(), appointment.takeDoctor(),
                 InputHelper.readText(scanner, "Diagnosis: "),
                 InputHelper.readText(scanner, "Treatment notes: "),
                 recordDate);
@@ -124,13 +124,13 @@ public class DoctorMenu {
     }
 
     private static void prescribeMedicine(Scanner scanner, User user) {
-        int doctorId = user.getLinkedId();
+        int doctorId = user.takeLinkedId();
 
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
-        appointmentLF.getAppointmentsByDoctor(doctorId).stream()
-                .map(Appointment::getPatient)
-                .filter(p -> p != null && AccountStatus.ACTIVE == p.getStatus())
-                .forEach(p -> distinctPatients.putIfAbsent(p.getPatientId(), p));
+        appointmentLF.takeAppointmentsByDoctor(doctorId).stream()
+                .map(Appointment::takePatient)
+                .filter(p -> p != null && AccountStatus.ACTIVE == p.takeStatus())
+                .forEach(p -> distinctPatients.putIfAbsent(p.takePatientId(), p));
 
         List<Patient> myPatients = new ArrayList<>(distinctPatients.values());
 
@@ -143,9 +143,9 @@ public class DoctorMenu {
         TablePrinter.printPatients(myPatients);
         int patientId = InputHelper.readInt(scanner, "Patient ID to prescribe for: ");
 
-        List<MedicalRecord> myRecords = medicalRecordLF.getRecordsByPatient(patientId)
+        List<MedicalRecord> myRecords = medicalRecordLF.takeRecordsByPatient(patientId)
                 .stream()
-                .filter(r -> r.getDoctor().getDoctorId() == doctorId)
+                .filter(r -> r.takeDoctor().takeDoctorId() == doctorId)
                 .collect(Collectors.toList());
 
         if (myRecords.isEmpty()) {
@@ -157,13 +157,13 @@ public class DoctorMenu {
         TablePrinter.printMedicalRecords(myRecords);
 
         int recordId = InputHelper.readInt(scanner, "Medical Record ID to prescribe against: ");
-        MedicalRecord record = medicalRecordLF.getRecordById(recordId);
+        MedicalRecord record = medicalRecordLF.takeRecordById(recordId);
 
         if (record == null) {
             System.out.println("No medical record found with that ID.");
             return;
         }
-        if (record.getDoctor().getDoctorId() != doctorId) {
+        if (record.takeDoctor().takeDoctorId() != doctorId) {
             System.out.println("You can only prescribe for your own records.");
             return;
         }
@@ -192,15 +192,15 @@ public class DoctorMenu {
     private static void viewPatientRecords(Scanner scanner, int doctorId) {
         System.out.println("\nYour patients:");
         Map<Integer, Patient> distinctPatients = new LinkedHashMap<>();
-        appointmentLF.getAppointmentsByDoctor(doctorId).stream()
-                .map(Appointment::getPatient)
-                .filter(p -> p != null && AccountStatus.ACTIVE == p.getStatus())
-                .forEach(p -> distinctPatients.putIfAbsent(p.getPatientId(), p));
+        appointmentLF.takeAppointmentsByDoctor(doctorId).stream()
+                .map(Appointment::takePatient)
+                .filter(p -> p != null && AccountStatus.ACTIVE == p.takeStatus())
+                .forEach(p -> distinctPatients.putIfAbsent(p.takePatientId(), p));
         TablePrinter.printPatients(new ArrayList<>(distinctPatients.values()));
 
         int patientId = InputHelper.readInt(scanner, "Patient ID: ");
-        List<MedicalRecord> records = medicalRecordLF.getRecordsByPatient(patientId).stream()
-                .filter(r -> r.getDoctor().getDoctorId() == doctorId)
+        List<MedicalRecord> records = medicalRecordLF.takeRecordsByPatient(patientId).stream()
+                .filter(r -> r.takeDoctor().takeDoctorId() == doctorId)
                 .collect(Collectors.toList());
         TablePrinter.printMedicalRecords(records);
     }

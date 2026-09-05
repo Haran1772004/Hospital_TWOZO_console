@@ -42,7 +42,7 @@ public class Appointment {
         status == null ? null : AppointmentStatus.valueOf(status.toUpperCase()));
   }
 
-  public int getAppointmentId() {
+  public int takeAppointmentId() {
     return appointmentId;
   }
 
@@ -50,7 +50,7 @@ public class Appointment {
     this.appointmentId = appointmentId;
   }
 
-  public Patient getPatient() {
+  public Patient takePatient() {
     return patient;
   }
 
@@ -58,7 +58,7 @@ public class Appointment {
     this.patient = patient;
   }
 
-  public Doctor getDoctor() {
+  public Doctor takeDoctor() {
     return doctor;
   }
 
@@ -66,7 +66,7 @@ public class Appointment {
     this.doctor = doctor;
   }
 
-  public String getAppointmentDate() {
+  public String takeAppointmentDate() {
     return appointmentDate;
   }
 
@@ -74,7 +74,7 @@ public class Appointment {
     this.appointmentDate = appointmentDate;
   }
 
-  public String getAppointmentTime() {
+  public String takeAppointmentTime() {
     return appointmentTime;
   }
 
@@ -82,7 +82,7 @@ public class Appointment {
     this.appointmentTime = appointmentTime;
   }
 
-  public AppointmentStatus getStatus() {
+  public AppointmentStatus takeStatus() {
     return status;
   }
 
@@ -99,9 +99,9 @@ public class Appointment {
         + "appointmentId="
         + appointmentId
         + ", patient="
-        + (patient != null ? patient.getName() : null)
+        + (patient != null ? patient.takeName() : null)
         + ", doctor="
-        + (doctor != null ? doctor.getName() : null)
+        + (doctor != null ? doctor.takeName() : null)
         + ", appointmentDate='"
         + appointmentDate
         + '\''

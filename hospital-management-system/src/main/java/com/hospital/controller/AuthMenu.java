@@ -136,10 +136,10 @@ public final class AuthMenu {
             }
 
             TablePrinter.printDepartments(
-                    departmentLF.getAllDepartments()
+                    departmentLF.takeAllDepartments()
                             .stream()
                             .filter(department ->
-                                    AccountStatus.ACTIVE == department.getStatus())
+                                    AccountStatus.ACTIVE == department.takeStatus())
                             .toList()
             );
 
@@ -147,7 +147,7 @@ public final class AuthMenu {
                     InputHelper.readInt(scanner, "Active department ID: ");
 
             Department department =
-                    departmentLF.getDepartmentById(departmentId);
+                    departmentLF.takeDepartmentById(departmentId);
 
             registrationService.registerDoctor(
                     username,

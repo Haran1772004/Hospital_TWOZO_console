@@ -25,7 +25,7 @@ public class Department {
         status == null ? null : AccountStatus.valueOf(status.toUpperCase()));
   }
 
-  public int getDepartmentId() {
+  public int takeDepartmentId() {
     return departmentId;
   }
 
@@ -33,7 +33,7 @@ public class Department {
     this.departmentId = departmentId;
   }
 
-  public String getName() {
+  public String takeName() {
     return name;
   }
 
@@ -41,7 +41,7 @@ public class Department {
     this.name = name;
   }
 
-  public String getDescription() {
+  public String takeDescription() {
     return description;
   }
 
@@ -49,7 +49,7 @@ public class Department {
     this.description = description;
   }
 
-  public AccountStatus getStatus() {
+  public AccountStatus takeStatus() {
     return status;
   }
 

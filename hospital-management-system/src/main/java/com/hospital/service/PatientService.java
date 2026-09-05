@@ -17,11 +17,11 @@ public class PatientService {
 
   public Patient viewPersonalDetails(int patientId) {
     ensurePatientAccess(patientId);
-    return patientLF.getPatientById(patientId);
+    return patientLF.takePatientById(patientId);
   }
 
   public void viewPersonalDetailsWithCredentials(int patientId, User loggedInUser) {
-    Patient patient = patientLF.getPatientById(patientId);
+    Patient patient = patientLF.takePatientById(patientId);
     if (patient == null) {
       System.out.println("No patient found with ID: " + patientId);
       return;
@@ -32,26 +32,26 @@ public class PatientService {
 
     if (loggedInUser != null) {
       System.out.println("\n--- Your Login Username ---");
-      System.out.println("  Username : " + loggedInUser.getUsername());
+      System.out.println("  Username : " + loggedInUser.takeUsername());
     }
   }
 
   public List<Appointment> viewAppointments(int patientId) {
     ensurePatientAccess(patientId);
-    return appointmentLF.getAppointmentsByPatient(patientId);
+    return appointmentLF.takeAppointmentsByPatient(patientId);
   }
 
   public List<MedicalRecord> viewMedicalRecords(int patientId) {
     ensurePatientAccess(patientId);
-    return medicalRecordLF.getRecordsByPatient(patientId);
+    return medicalRecordLF.takeRecordsByPatient(patientId);
   }
 
   public List<Prescription> viewPrescriptions(int patientId) {
     ensurePatientAccess(patientId);
     List<Prescription> allPrescriptions = new ArrayList<>();
-    List<MedicalRecord> records = medicalRecordLF.getRecordsByPatient(patientId);
+    List<MedicalRecord> records = medicalRecordLF.takeRecordsByPatient(patientId);
     for (MedicalRecord record : records) {
-      allPrescriptions.addAll(prescriptionLF.getPrescriptionsByRecord(record.getRecordId()));
+      allPrescriptions.addAll(prescriptionLF.takePrescriptionsByRecord(record.takeRecordId()));
     }
     return allPrescriptions;
   }
@@ -73,7 +73,7 @@ public class PatientService {
 
     if (loggedInUser != null) {
       System.out.println("\n--- Your Login Username ---");
-      System.out.println("  Username : " + loggedInUser.getUsername());
+      System.out.println("  Username : " + loggedInUser.takeUsername());
     }
 
     System.out.println("\n--- Appointments ---");
@@ -93,10 +93,10 @@ public class PatientService {
   }
 
   private void ensurePatientAccess(int patientId) {
-    User currentUser = AuthService.getCurrentUser();
+    User currentUser = AuthService.takeCurrentUser();
     if (currentUser != null
-        && "PATIENT".equals(currentUser.getRole())
-        && currentUser.getLinkedId() != patientId) {
+        && "PATIENT".equals(currentUser.takeRole())
+        && currentUser.takeLinkedId() != patientId) {
       throw new AuthorizationException("Patients may access only their own records");
     }
   }

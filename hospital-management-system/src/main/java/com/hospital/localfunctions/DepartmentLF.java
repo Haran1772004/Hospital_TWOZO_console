@@ -13,7 +13,7 @@ public interface DepartmentLF {
 
     void activateDepartment(int departmentId);
 
-    Department getDepartmentById(int departmentId);
+    Department takeDepartmentById(int departmentId);
 
-    List<Department> getAllDepartments();
+    List<Department> takeAllDepartments();
 }

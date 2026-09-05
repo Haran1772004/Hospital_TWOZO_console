@@ -15,7 +15,7 @@ public interface PatientLF {
 
     void activatePatient(int patientId);
 
-    Patient getPatientById(int patientId);
+    Patient takePatientById(int patientId);
 
-    List<Patient> getAllPatients();
+    List<Patient> takeAllPatients();
 }

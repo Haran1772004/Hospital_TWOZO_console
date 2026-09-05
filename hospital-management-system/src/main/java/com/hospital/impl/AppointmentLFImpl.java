@@ -22,24 +22,24 @@ public class AppointmentLFImpl implements AppointmentLF {
   private static final List<Appointment> appointments = new CopyOnWriteArrayList<>();
   private static final AtomicInteger nextId = new AtomicInteger(1);
   private static final Comparator<Appointment> byDateTime =
-      Comparator.comparing(Appointment::getAppointmentDate, Comparator.nullsLast(String::compareTo))
-          .thenComparing(Appointment::getAppointmentTime, Comparator.nullsLast(String::compareTo));
+      Comparator.comparing(Appointment::takeAppointmentDate, Comparator.nullsLast(String::compareTo))
+          .thenComparing(Appointment::takeAppointmentTime, Comparator.nullsLast(String::compareTo));
 
   @Override
   public void bookAppointment(Appointment a) {
-    if (a == null || a.getPatient() == null || a.getDoctor() == null) {
+    if (a == null || a.takePatient() == null || a.takeDoctor() == null) {
       throw new IllegalArgumentException("Patient and doctor are required");
     }
-    Patient patient = new PatientLFImpl().getPatientById(a.getPatient().getPatientId());
-    Doctor doctor = new DoctorLFImpl().getDoctorById(a.getDoctor().getDoctorId());
+    Patient patient = new PatientLFImpl().takePatientById(a.takePatient().takePatientId());
+    Doctor doctor = new DoctorLFImpl().takeDoctorById(a.takeDoctor().takeDoctorId());
     if (patient == null || doctor == null) {
       throw new ResourceNotFoundException("Patient or doctor does not exist");
     }
-    if (AccountStatus.ACTIVE != patient.getStatus() || AccountStatus.ACTIVE != doctor.getStatus()) {
+    if (AccountStatus.ACTIVE != patient.takeStatus() || AccountStatus.ACTIVE != doctor.takeStatus()) {
       throw new BusinessRuleViolationException("Patient and doctor must be active");
     }
-    LocalDate date = ValidationUtil.parseDate(a.getAppointmentDate());
-    LocalTime time = ValidationUtil.parseTime(a.getAppointmentTime());
+    LocalDate date = ValidationUtil.parseDate(a.takeAppointmentDate());
+    LocalTime time = ValidationUtil.parseTime(a.takeAppointmentTime());
     if (date == null || time == null) {
       throw new IllegalArgumentException("Invalid appointment date or time");
     }
@@ -48,30 +48,30 @@ public class AppointmentLFImpl implements AppointmentLF {
     }
     String normalizedTime =
         time.toString().length() == 5 ? time.toString() + ":00" : time.toString();
-    if (!isDoctorAvailable(doctor.getDoctorId(), date.toString(), normalizedTime)
+    if (!isDoctorAvailable(doctor.takeDoctorId(), date.toString(), normalizedTime)
         || appointments.stream()
             .anyMatch(
                 existing ->
-                    AppointmentStatus.SCHEDULED == existing.getStatus()
-                        && existing.getPatient().getPatientId() == patient.getPatientId()
-                        && date.toString().equals(existing.getAppointmentDate())
-                        && normalizedTime.equals(normalizeTime(existing.getAppointmentTime())))) {
+                    AppointmentStatus.SCHEDULED == existing.takeStatus()
+                        && existing.takePatient().takePatientId() == patient.takePatientId()
+                        && date.toString().equals(existing.takeAppointmentDate())
+                        && normalizedTime.equals(normalizeTime(existing.takeAppointmentTime())))) {
       throw new DuplicateResourceException(
           "Doctor or patient already has an appointment at that time");
     }
     a.setAppointmentDate(date.toString());
     a.setAppointmentTime(normalizedTime);
-    if (a.getAppointmentId() == 0) {
+    if (a.takeAppointmentId() == 0) {
       a.setAppointmentId(nextId.getAndIncrement());
     }
     appointments.add(a);
-    System.out.println("Appointment booked successfully (ID: " + a.getAppointmentId() + ")");
+    System.out.println("Appointment booked successfully (ID: " + a.takeAppointmentId() + ")");
   }
 
   @Override
   public void cancelAppointment(int id) {
     Appointment a =
-        appointments.stream().filter(x -> x.getAppointmentId() == id).findFirst().orElse(null);
+        appointments.stream().filter(x -> x.takeAppointmentId() == id).findFirst().orElse(null);
     if (a == null) {
       System.out.println("Appointment not found with ID: " + id);
     } else {
@@ -85,40 +85,40 @@ public class AppointmentLFImpl implements AppointmentLF {
     return appointments.stream()
         .noneMatch(
             a ->
-                a.getDoctor().getDoctorId() == doctorId
-                    && date.equals(a.getAppointmentDate())
-                    && normalizeTime(time).equals(normalizeTime(a.getAppointmentTime()))
-                    && AppointmentStatus.SCHEDULED == a.getStatus());
+                a.takeDoctor().takeDoctorId() == doctorId
+                    && date.equals(a.takeAppointmentDate())
+                    && normalizeTime(time).equals(normalizeTime(a.takeAppointmentTime()))
+                    && AppointmentStatus.SCHEDULED == a.takeStatus());
   }
 
   @Override
-  public List<Appointment> getAppointmentsByPatient(int id) {
+  public List<Appointment> takeAppointmentsByPatient(int id) {
     return appointments.stream()
-        .filter(a -> a.getPatient().getPatientId() == id)
+        .filter(a -> a.takePatient().takePatientId() == id)
         .sorted(byDateTime)
         .toList();
   }
 
   @Override
-  public List<Appointment> getAppointmentsByDoctor(int id) {
+  public List<Appointment> takeAppointmentsByDoctor(int id) {
     return appointments.stream()
-        .filter(a -> a.getDoctor().getDoctorId() == id)
+        .filter(a -> a.takeDoctor().takeDoctorId() == id)
         .sorted(byDateTime)
         .toList();
   }
 
   @Override
-  public List<Appointment> getTodaysAppointments() {
+  public List<Appointment> takeTodaysAppointments() {
     return appointments.stream()
-        .filter(a -> LocalDate.now().toString().equals(a.getAppointmentDate()))
+        .filter(a -> LocalDate.now().toString().equals(a.takeAppointmentDate()))
         .sorted(
             Comparator.comparing(
-                Appointment::getAppointmentTime, Comparator.nullsLast(String::compareTo)))
+                Appointment::takeAppointmentTime, Comparator.nullsLast(String::compareTo)))
         .toList();
   }
 
   @Override
-  public List<Appointment> getAllAppointments() {
+  public List<Appointment> takeAllAppointments() {
     return appointments.stream().sorted(byDateTime).toList();
   }
 

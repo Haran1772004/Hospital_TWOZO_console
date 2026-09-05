@@ -19,7 +19,7 @@ public class Prescription {
     this.duration = duration;
   }
 
-  public int getPrescriptionId() {
+  public int takePrescriptionId() {
     return prescriptionId;
   }
 
@@ -27,7 +27,7 @@ public class Prescription {
     this.prescriptionId = prescriptionId;
   }
 
-  public int getRecordId() {
+  public int takeRecordId() {
     return recordId;
   }
 
@@ -35,7 +35,7 @@ public class Prescription {
     this.recordId = recordId;
   }
 
-  public String getMedicineName() {
+  public String takeMedicineName() {
     return medicineName;
   }
 
@@ -43,7 +43,7 @@ public class Prescription {
     this.medicineName = medicineName;
   }
 
-  public String getDosage() {
+  public String takeDosage() {
     return dosage;
   }
 
@@ -51,7 +51,7 @@ public class Prescription {
     this.dosage = dosage;
   }
 
-  public String getDuration() {
+  public String takeDuration() {
     return duration;
   }
 

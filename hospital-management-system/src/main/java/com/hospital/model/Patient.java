@@ -52,7 +52,7 @@ public class Patient {
         status == null ? null : AccountStatus.valueOf(status.toUpperCase()));
   }
 
-  public int getPatientId() {
+  public int takePatientId() {
     return patientId;
   }
 
@@ -60,7 +60,7 @@ public class Patient {
     this.patientId = patientId;
   }
 
-  public String getName() {
+  public String takeName() {
     return name;
   }
 
@@ -68,7 +68,7 @@ public class Patient {
     this.name = name;
   }
 
-  public String getDob() {
+  public String takeDob() {
     return dob;
   }
 
@@ -76,7 +76,7 @@ public class Patient {
     this.dob = dob;
   }
 
-  public Gender getGender() {
+  public Gender takeGender() {
     return gender;
   }
 
@@ -88,7 +88,7 @@ public class Patient {
     this.gender = Gender.valueOf(gender.trim().toUpperCase());
   }
 
-  public String getPhone() {
+  public String takePhone() {
     return phone;
   }
 
@@ -96,7 +96,7 @@ public class Patient {
     this.phone = phone;
   }
 
-  public String getEmail() {
+  public String takeEmail() {
     return email;
   }
 
@@ -104,7 +104,7 @@ public class Patient {
     this.email = email;
   }
 
-  public String getAddress() {
+  public String takeAddress() {
     return address;
   }
 
@@ -112,7 +112,7 @@ public class Patient {
     this.address = address;
   }
 
-  public AccountStatus getStatus() {
+  public AccountStatus takeStatus() {
     return status;
   }
 

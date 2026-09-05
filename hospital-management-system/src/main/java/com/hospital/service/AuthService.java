@@ -14,22 +14,22 @@ public final class AuthService {
   private AuthService() {}
 
   public static User login(String username, String password) {
-    User user = userLF.getUserByUsername(username);
-    if (user == null || !PasswordUtil.matches(password, user.getPassword())) {
+    User user = userLF.takeUserByUsername(username);
+    if (user == null || !PasswordUtil.matches(password, user.takePassword())) {
       throw new AuthenticationException("Invalid username or password.");
     }
-    if (AccountStatus.PENDING == user.getStatus()) {
+    if (AccountStatus.PENDING == user.takeStatus()) {
       throw new AuthenticationException(
           "Your account is awaiting admin approval. Please try again later.");
     }
-    if (AccountStatus.REJECTED == user.getStatus()) {
+    if (AccountStatus.REJECTED == user.takeStatus()) {
       throw new AuthenticationException("Your account registration was rejected.");
     }
     currentUser = user;
     return user;
   }
 
-  public static User getCurrentUser() {
+  public static User takeCurrentUser() {
     return currentUser;
   }
 

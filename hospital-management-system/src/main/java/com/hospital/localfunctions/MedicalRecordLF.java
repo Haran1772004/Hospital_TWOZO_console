@@ -7,11 +7,11 @@ public interface MedicalRecordLF {
 
     void createMedicalRecord(MedicalRecord record);
 
-    MedicalRecord getRecordById(int recordId);
+    MedicalRecord takeRecordById(int recordId);
 
-    List<MedicalRecord> getRecordsByPatient(int patientId);
+    List<MedicalRecord> takeRecordsByPatient(int patientId);
 
-    List<MedicalRecord> getRecordsByDoctor(int doctorId);
+    List<MedicalRecord> takeRecordsByDoctor(int doctorId);
 
-    List<MedicalRecord> getAllRecords();
+    List<MedicalRecord> takeAllRecords();
 }

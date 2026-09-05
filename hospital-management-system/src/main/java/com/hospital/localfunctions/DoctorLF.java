@@ -13,7 +13,7 @@ public interface DoctorLF {
 
     void activateDoctor(int doctorId);
 
-    Doctor getDoctorById(int doctorId);
+    Doctor takeDoctorById(int doctorId);
 
-    List<Doctor> getAllDoctors();
+    List<Doctor> takeAllDoctors();
 }

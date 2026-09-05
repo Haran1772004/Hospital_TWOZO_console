@@ -44,9 +44,9 @@ public class SecurityAndValidationTest extends TestCase {
     public void testDuplicateUsernameAndPatientPhoneRejected() {
         UserLF userLF = new UserLFImpl();
         String username = "unique_" + System.nanoTime();
-        userLF.addUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 1));
+        userLF.joinUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 1));
         try {
-            userLF.addUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 2));
+            userLF.joinUser(new User(username, PasswordUtil.hashPassword("Strong1!"), "PATIENT", 2));
             fail("Duplicate username should be rejected");
         } catch (DuplicateResourceException expected) {
         }
@@ -57,7 +57,7 @@ public class SecurityAndValidationTest extends TestCase {
                 "alex" + suffix + "@example.com", "Address", "ACTIVE");
         patientLF.addPatient(patient);
         try {
-            patientLF.addPatient(new Patient(0, "Another Person", "1991-01-01", "FEMALE", patient.getPhone(),
+            patientLF.addPatient(new Patient(0, "Another Person", "1991-01-01", "FEMALE", patient.takePhone(),
                     "other" + suffix + "@example.com", "Address", "ACTIVE"));
             fail("Duplicate patient phone should be rejected");
         } catch (DuplicateResourceException expected) {
@@ -70,11 +70,11 @@ public class SecurityAndValidationTest extends TestCase {
         Patient patient = service.registerPatient("patient_" + suffix, "Strong1!", "Jane Smith",
                 "1990-05-20", "FEMALE", "555010" + (System.currentTimeMillis() % 1000),
                 "jane" + suffix + "@example.com", "Main Street");
-        assertTrue(patient.getPatientId() > 0);
-        User user = new UserLFImpl().getUserByUsername("patient_" + suffix);
+        assertTrue(patient.takePatientId() > 0);
+        User user = new UserLFImpl().takeUserByUsername("patient_" + suffix);
         assertNotNull(user);
-        assertEquals(patient.getPatientId(), user.getLinkedId());
-        assertTrue(PasswordUtil.matches("Strong1!", user.getPassword()));
+        assertEquals(patient.takePatientId(), user.takeLinkedId());
+        assertTrue(PasswordUtil.matches("Strong1!", user.takePassword()));
     }
 
     public void testInactiveDepartmentRejectsDoctorRegistration() {
@@ -106,10 +106,10 @@ public class SecurityAndValidationTest extends TestCase {
         MedicalRecordLFAssertions.assertInvalidRecordDate(appointment, patient, doctor);
         MedicalRecord record = new MedicalRecord(0, appointment, patient, doctor, "Diagnosis", "Notes", LocalDate.now().toString());
         new MedicalRecordLFImpl().createMedicalRecord(record);
-        assertEquals(AppointmentStatus.FINISHED, appointment.getStatus());
+        assertEquals(AppointmentStatus.FINISHED, appointment.takeStatus());
 
         try {
-            new PrescriptionLFImpl().addPrescription(new Prescription(0, record.getRecordId(), "", "once", "5 days"));
+            new PrescriptionLFImpl().addPrescription(new Prescription(0, record.takeRecordId(), "", "once", "5 days"));
             fail("Blank medicine name should be rejected");
         } catch (IllegalArgumentException expected) {
         }
@@ -134,8 +134,8 @@ public class SecurityAndValidationTest extends TestCase {
                     "dr" + suffix + "@example.com", new Department(1, "Surgery", "Care", "ACTIVE"), "ACTIVE");
             LF.addDoctor(doctor);
             try {
-                LF.addDoctor(new Doctor(0, "Dr Other", "Medicine", doctor.getPhone(),
-                        "other" + suffix + "@example.com", doctor.getDepartment(), "ACTIVE"));
+                LF.addDoctor(new Doctor(0, "Dr Other", "Medicine", doctor.takePhone(),
+                        "other" + suffix + "@example.com", doctor.takeDepartment(), "ACTIVE"));
                 fail("Duplicate doctor phone should be rejected");
             } catch (DuplicateResourceException expected) {
             }

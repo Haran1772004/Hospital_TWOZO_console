@@ -13,17 +13,17 @@ public class DepartmentLFImpl implements DepartmentLF {
 
   @Override
   public void addDepartment(Department d) {
-    if (d.getDepartmentId() == 0) {
+    if (d.takeDepartmentId() == 0) {
       d.setDepartmentId(nextId.getAndIncrement());
     }
     departments.add(d);
-    System.out.println("Department added successfully (ID: " + d.getDepartmentId() + ")");
+    System.out.println("Department added successfully (ID: " + d.takeDepartmentId() + ")");
   }
 
   @Override
   public void updateDepartment(Department d) {
-    if (getDepartmentById(d.getDepartmentId()) == null) {
-      System.out.println("Department not found with ID: " + d.getDepartmentId());
+    if (takeDepartmentById(d.takeDepartmentId()) == null) {
+      System.out.println("Department not found with ID: " + d.takeDepartmentId());
     } else {
       System.out.println("Department updated successfully");
     }
@@ -31,7 +31,7 @@ public class DepartmentLFImpl implements DepartmentLF {
 
   @Override
   public void deactivateDepartment(int id) {
-    Department d = getDepartmentById(id);
+    Department d = takeDepartmentById(id);
     if (d == null) {
       System.out.println("Department not found with ID: " + id);
     } else {
@@ -42,7 +42,7 @@ public class DepartmentLFImpl implements DepartmentLF {
 
   @Override
   public void activateDepartment(int id) {
-    Department d = getDepartmentById(id);
+    Department d = takeDepartmentById(id);
     if (d == null) {
       System.out.println("Department not found with ID: " + id);
     } else {
@@ -52,12 +52,12 @@ public class DepartmentLFImpl implements DepartmentLF {
   }
 
   @Override
-  public Department getDepartmentById(int id) {
-    return departments.stream().filter(d -> d.getDepartmentId() == id).findFirst().orElse(null);
+  public Department takeDepartmentById(int id) {
+    return departments.stream().filter(d -> d.takeDepartmentId() == id).findFirst().orElse(null);
   }
 
   @Override
-  public List<Department> getAllDepartments() {
+  public List<Department> takeAllDepartments() {
     return new ArrayList<>(departments);
   }
 }

@@ -17,12 +17,12 @@ public class TablePrinter {
 
     for (int i = 0; i < appointments.size(); i++) {
       Appointment a = appointments.get(i);
-      data[i][0] = String.valueOf(a.getAppointmentId());
-      data[i][1] = a.getPatient() != null ? a.getPatient().getName() : "N/A";
-      data[i][2] = a.getDoctor() != null ? a.getDoctor().getName() : "N/A";
-      data[i][3] = a.getAppointmentDate() != null ? a.getAppointmentDate() : "";
-      data[i][4] = a.getAppointmentTime() != null ? a.getAppointmentTime() : "";
-      data[i][5] = a.getStatus() != null ? a.getStatus().name() : "";
+      data[i][0] = String.valueOf(a.takeAppointmentId());
+      data[i][1] = a.takePatient() != null ? a.takePatient().takeName() : "N/A";
+      data[i][2] = a.takeDoctor() != null ? a.takeDoctor().takeName() : "N/A";
+      data[i][3] = a.takeAppointmentDate() != null ? a.takeAppointmentDate() : "";
+      data[i][4] = a.takeAppointmentTime() != null ? a.takeAppointmentTime() : "";
+      data[i][5] = a.takeStatus() != null ? a.takeStatus().name() : "";
     }
 
     printTable(headers, data);
@@ -47,14 +47,14 @@ public class TablePrinter {
 
     for (int i = 0; i < patients.size(); i++) {
       Patient p = patients.get(i);
-      data[i][0] = String.valueOf(p.getPatientId());
-      data[i][1] = p.getName() != null ? p.getName() : "";
-      data[i][2] = p.getDob() != null ? p.getDob() : "";
-      data[i][3] = p.getGender() != null ? p.getGender().name() : "";
-      data[i][4] = p.getPhone() != null ? p.getPhone() : "";
-      data[i][5] = p.getEmail() != null ? p.getEmail() : "";
-      data[i][6] = p.getAddress() != null ? p.getAddress() : "";
-      data[i][7] = p.getStatus() != null ? p.getStatus().name() : "";
+      data[i][0] = String.valueOf(p.takePatientId());
+      data[i][1] = p.takeName() != null ? p.takeName() : "";
+      data[i][2] = p.takeDob() != null ? p.takeDob() : "";
+      data[i][3] = p.takeGender() != null ? p.takeGender().name() : "";
+      data[i][4] = p.takePhone() != null ? p.takePhone() : "";
+      data[i][5] = p.takeEmail() != null ? p.takeEmail() : "";
+      data[i][6] = p.takeAddress() != null ? p.takeAddress() : "";
+      data[i][7] = p.takeStatus() != null ? p.takeStatus().name() : "";
     }
 
     printTable(headers, data);
@@ -81,15 +81,15 @@ public class TablePrinter {
       "ID", "Name", "DOB", "Gender", "Phone", "Email", "Address", "Status", "Login ID"
     };
     String[][] data = new String[1][9];
-    data[0][0] = String.valueOf(patient.getPatientId());
-    data[0][1] = patient.getName() != null ? patient.getName() : "";
-    data[0][2] = patient.getDob() != null ? patient.getDob() : "";
-    data[0][3] = patient.getGender() != null ? patient.getGender().name() : "";
-    data[0][4] = patient.getPhone() != null ? patient.getPhone() : "";
-    data[0][5] = patient.getEmail() != null ? patient.getEmail() : "";
-    data[0][6] = patient.getAddress() != null ? patient.getAddress() : "";
-    data[0][7] = patient.getStatus() != null ? patient.getStatus().name() : "";
-    data[0][8] = String.valueOf(patient.getPatientId());
+    data[0][0] = String.valueOf(patient.takePatientId());
+    data[0][1] = patient.takeName() != null ? patient.takeName() : "";
+    data[0][2] = patient.takeDob() != null ? patient.takeDob() : "";
+    data[0][3] = patient.takeGender() != null ? patient.takeGender().name() : "";
+    data[0][4] = patient.takePhone() != null ? patient.takePhone() : "";
+    data[0][5] = patient.takeEmail() != null ? patient.takeEmail() : "";
+    data[0][6] = patient.takeAddress() != null ? patient.takeAddress() : "";
+    data[0][7] = patient.takeStatus() != null ? patient.takeStatus().name() : "";
+    data[0][8] = String.valueOf(patient.takePatientId());
     printTable(headers, data);
   }
 
@@ -106,13 +106,13 @@ public class TablePrinter {
 
     for (int i = 0; i < doctors.size(); i++) {
       Doctor d = doctors.get(i);
-      data[i][0] = String.valueOf(d.getDoctorId());
-      data[i][1] = d.getName() != null ? d.getName() : "";
-      data[i][2] = d.getSpecialization() != null ? d.getSpecialization() : "";
-      data[i][3] = d.getDepartment() != null ? d.getDepartment().getName() : "N/A";
-      data[i][4] = d.getPhone() != null ? d.getPhone() : "";
-      data[i][5] = d.getEmail() != null ? d.getEmail() : "";
-      data[i][6] = d.getStatus() != null ? d.getStatus().name() : "";
+      data[i][0] = String.valueOf(d.takeDoctorId());
+      data[i][1] = d.takeName() != null ? d.takeName() : "";
+      data[i][2] = d.takeSpecialization() != null ? d.takeSpecialization() : "";
+      data[i][3] = d.takeDepartment() != null ? d.takeDepartment().takeName() : "N/A";
+      data[i][4] = d.takePhone() != null ? d.takePhone() : "";
+      data[i][5] = d.takeEmail() != null ? d.takeEmail() : "";
+      data[i][6] = d.takeStatus() != null ? d.takeStatus().name() : "";
     }
 
     printTable(headers, data);
@@ -141,10 +141,10 @@ public class TablePrinter {
 
     for (int i = 0; i < departments.size(); i++) {
       Department dept = departments.get(i);
-      data[i][0] = String.valueOf(dept.getDepartmentId());
-      data[i][1] = dept.getName() != null ? dept.getName() : "";
-      data[i][2] = dept.getDescription() != null ? dept.getDescription() : "";
-      data[i][3] = dept.getStatus() != null ? dept.getStatus().name() : "";
+      data[i][0] = String.valueOf(dept.takeDepartmentId());
+      data[i][1] = dept.takeName() != null ? dept.takeName() : "";
+      data[i][2] = dept.takeDescription() != null ? dept.takeDescription() : "";
+      data[i][3] = dept.takeStatus() != null ? dept.takeStatus().name() : "";
     }
 
     printTable(headers, data);
@@ -171,16 +171,16 @@ public class TablePrinter {
 
     for (int i = 0; i < records.size(); i++) {
       MedicalRecord r = records.get(i);
-      data[i][0] = String.valueOf(r.getRecordId());
+      data[i][0] = String.valueOf(r.takeRecordId());
       data[i][1] =
-          r.getAppointment() != null
-              ? String.valueOf(r.getAppointment().getAppointmentId())
+          r.takeAppointment() != null
+              ? String.valueOf(r.takeAppointment().takeAppointmentId())
               : "N/A";
-      data[i][2] = r.getPatient() != null ? r.getPatient().getName() : "N/A";
-      data[i][3] = r.getDoctor() != null ? r.getDoctor().getName() : "N/A";
-      data[i][4] = r.getDiagnosis() != null ? r.getDiagnosis() : "";
-      data[i][5] = r.getTreatmentNotes() != null ? r.getTreatmentNotes() : "";
-      data[i][6] = r.getRecordDate() != null ? r.getRecordDate() : "";
+      data[i][2] = r.takePatient() != null ? r.takePatient().takeName() : "N/A";
+      data[i][3] = r.takeDoctor() != null ? r.takeDoctor().takeName() : "N/A";
+      data[i][4] = r.takeDiagnosis() != null ? r.takeDiagnosis() : "";
+      data[i][5] = r.takeTreatmentNotes() != null ? r.takeTreatmentNotes() : "";
+      data[i][6] = r.takeRecordDate() != null ? r.takeRecordDate() : "";
     }
 
     printTable(headers, data);
@@ -205,11 +205,11 @@ public class TablePrinter {
 
     for (int i = 0; i < prescriptions.size(); i++) {
       Prescription p = prescriptions.get(i);
-      data[i][0] = String.valueOf(p.getPrescriptionId());
-      data[i][1] = String.valueOf(p.getRecordId());
-      data[i][2] = p.getMedicineName() != null ? p.getMedicineName() : "";
-      data[i][3] = p.getDosage() != null ? p.getDosage() : "";
-      data[i][4] = p.getDuration() != null ? p.getDuration() : "";
+      data[i][0] = String.valueOf(p.takePrescriptionId());
+      data[i][1] = String.valueOf(p.takeRecordId());
+      data[i][2] = p.takeMedicineName() != null ? p.takeMedicineName() : "";
+      data[i][3] = p.takeDosage() != null ? p.takeDosage() : "";
+      data[i][4] = p.takeDuration() != null ? p.takeDuration() : "";
     }
 
     printTable(headers, data);

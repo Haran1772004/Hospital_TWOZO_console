@@ -11,7 +11,7 @@ public class PatientMenu {
     private static final PatientService patientService = new PatientService();
 
     public static void show(Scanner scanner, User user) {
-        int patientId = user.getLinkedId();
+        int patientId = user.takeLinkedId();
 
         if (patientService.viewPersonalDetails(patientId) == null) {
             System.out.println("No patient found for this account.");

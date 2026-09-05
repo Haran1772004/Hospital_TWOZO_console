@@ -20,7 +20,7 @@ public class DoctorLFImpl implements DoctorLF {
             throw new IllegalArgumentException("Doctor is required");
         }
 
-        if (doctor.getDepartment() == null) {
+        if (doctor.takeDepartment() == null) {
             throw new DuplicateResourceException(
                     "Doctor must belong to a department"
             );
@@ -28,14 +28,14 @@ public class DoctorLFImpl implements DoctorLF {
 
         ensureUnique(doctor);
 
-        if (doctor.getDoctorId() == 0) {
+        if (doctor.takeDoctorId() == 0) {
             doctor.setDoctorId(nextId.getAndIncrement());
         }
 
         doctors.add(doctor);
 
         System.out.println(
-                "Doctor added successfully (ID: " + doctor.getDoctorId() + ")"
+                "Doctor added successfully (ID: " + doctor.takeDoctorId() + ")"
         );
     }
 
@@ -45,9 +45,9 @@ public class DoctorLFImpl implements DoctorLF {
             throw new IllegalArgumentException("Doctor is required");
         }
 
-        if (getDoctorById(doctor.getDoctorId()) == null) {
+        if (takeDoctorById(doctor.takeDoctorId()) == null) {
             System.out.println(
-                    "Doctor not found with ID: " + doctor.getDoctorId()
+                    "Doctor not found with ID: " + doctor.takeDoctorId()
             );
         } else {
             ensureUnique(doctor);
@@ -57,7 +57,7 @@ public class DoctorLFImpl implements DoctorLF {
 
     @Override
     public void deactivateDoctor(int id) {
-        Doctor doctor = getDoctorById(id);
+        Doctor doctor = takeDoctorById(id);
 
         if (doctor == null) {
             System.out.println("Doctor not found with ID: " + id);
@@ -69,7 +69,7 @@ public class DoctorLFImpl implements DoctorLF {
 
     @Override
     public void activateDoctor(int id) {
-        Doctor doctor = getDoctorById(id);
+        Doctor doctor = takeDoctorById(id);
 
         if (doctor == null) {
             System.out.println("Doctor not found with ID: " + id);
@@ -80,29 +80,29 @@ public class DoctorLFImpl implements DoctorLF {
     }
 
     @Override
-    public Doctor getDoctorById(int id) {
+    public Doctor takeDoctorById(int id) {
         return doctors.stream()
-                .filter(doctor -> doctor.getDoctorId() == id)
+                .filter(doctor -> doctor.takeDoctorId() == id)
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public List<Doctor> getAllDoctors() {
+    public List<Doctor> takeAllDoctors() {
         return new ArrayList<>(doctors);
     }
 
     private void ensureUnique(Doctor candidate) {
-        String email = normalizeEmail(candidate.getEmail());
-        String phone = normalizePhone(candidate.getPhone());
+        String email = normalizeEmail(candidate.takeEmail());
+        String phone = normalizePhone(candidate.takePhone());
 
         boolean duplicate = doctors.stream()
                 .filter(existing ->
-                        existing.getDoctorId() != candidate.getDoctorId()
+                        existing.takeDoctorId() != candidate.takeDoctorId()
                 )
                 .anyMatch(existing ->
-                        normalizeEmail(existing.getEmail()).equals(email)
-                                || normalizePhone(existing.getPhone()).equals(phone)
+                        normalizeEmail(existing.takeEmail()).equals(email)
+                                || normalizePhone(existing.takePhone()).equals(phone)
                 );
 
         if (duplicate) {

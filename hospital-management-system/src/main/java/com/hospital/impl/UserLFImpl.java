@@ -30,38 +30,38 @@ public class UserLFImpl implements UserLF {
 
   }
 
-  public void addUser(User user) {
+  public void joinUser(User user) {
 
-    if (user == null || user.getUsername() == null) {
+    if (user == null || user.takeUsername() == null) {
       throw new IllegalArgumentException("User and username are required");
     }
 
-    if (users.putIfAbsent(user.getUsername().trim().toLowerCase(), user) != null) {
+    if (users.putIfAbsent(user.takeUsername().trim().toLowerCase(), user) != null) {
       throw new DuplicateResourceException("Username already exists");
     }
   }
 
-  public User getUserByUsername(String username) {
+  public User takeUserByUsername(String username) {
 
     return username == null ? null : users.get(username.trim().toLowerCase());
   }
 
   public boolean existsByUsername(String username) {
-    return getUserByUsername(username) != null;
+    return takeUserByUsername(username) != null;
   }
 
-  public List<User> getAllUsers() {
+  public List<User> takeAllUsers() {
     return new ArrayList<>(users.values());
   }
 
-  public List<User> getPendingUsersByRole(String role) {
+  public List<User> takePendingUsersByRole(String role) {
     return users.values().stream()
-        .filter(user -> role.equals(user.getRole()) && AccountStatus.PENDING == user.getStatus())
+        .filter(user -> role.equals(user.takeRole()) && AccountStatus.PENDING == user.takeStatus())
         .toList();
   }
 
   public void updateStatus(String username, AccountStatus status) {
-    User user = getUserByUsername(username);
+    User user = takeUserByUsername(username);
     if (user == null) {
       throw new ResourceNotFoundException("User not found");
     }

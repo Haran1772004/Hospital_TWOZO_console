@@ -11,14 +11,14 @@ public final class UserStore {
   private UserStore() {}
 
   public static void addUser(User user) {
-    userLF.addUser(user);
+    userLF.joinUser(user);
   }
 
-  public static User getUser(String username) {
-    return userLF.getUserByUsername(username);
+  public static User takeUser(String username) {
+    return userLF.takeUserByUsername(username);
   }
 
-  public static List<User> getAllUsers() {
-    return userLF.getAllUsers();
+  public static List<User> takeAllUsers() {
+    return userLF.takeAllUsers();
   }
 }

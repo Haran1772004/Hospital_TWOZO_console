@@ -24,18 +24,18 @@ public class AdminService {
     System.out.println("========== HOSPITAL RECORDS ==========");
 
     System.out.println("\n--- Departments ---");
-    List<Department> departments = departmentLF.getAllDepartments();
+    List<Department> departments = departmentLF.takeAllDepartments();
     TablePrinter.printDepartments(departments);
 
     System.out.println("\n--- Doctors ---");
-    List<Doctor> doctors = doctorLF.getAllDoctors();
+    List<Doctor> doctors = doctorLF.takeAllDoctors();
 
     TablePrinter.printDoctors(doctors);
 
     System.out.println("\n--- Patients ---");
     List<Patient> patients =
-        patientLF.getAllPatients().stream()
-            .filter(patient -> AccountStatus.ACTIVE == patient.getStatus())
+        patientLF.takeAllPatients().stream()
+            .filter(patient -> AccountStatus.ACTIVE == patient.takeStatus())
             .toList();
 
     TablePrinter.printPatients(patients);

@@ -7,5 +7,5 @@ public interface PrescriptionLF {
 
     void addPrescription(Prescription prescription);
 
-    List<Prescription> getPrescriptionsByRecord(int recordId);
+    List<Prescription> takePrescriptionsByRecord(int recordId);
 }

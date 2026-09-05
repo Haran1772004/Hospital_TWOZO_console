@@ -47,7 +47,7 @@ public class Doctor {
         status == null ? null : AccountStatus.valueOf(status.toUpperCase()));
   }
 
-  public int getDoctorId() {
+  public int takeDoctorId() {
     return doctorId;
   }
 
@@ -55,7 +55,7 @@ public class Doctor {
     this.doctorId = doctorId;
   }
 
-  public String getName() {
+  public String takeName() {
     return name;
   }
 
@@ -63,7 +63,7 @@ public class Doctor {
     this.name = name;
   }
 
-  public String getSpecialization() {
+  public String takeSpecialization() {
     return specialization;
   }
 
@@ -71,7 +71,7 @@ public class Doctor {
     this.specialization = specialization;
   }
 
-  public String getPhone() {
+  public String takePhone() {
     return phone;
   }
 
@@ -79,7 +79,7 @@ public class Doctor {
     this.phone = phone;
   }
 
-  public String getEmail() {
+  public String takeEmail() {
     return email;
   }
 
@@ -87,7 +87,7 @@ public class Doctor {
     this.email = email;
   }
 
-  public Department getDepartment() {
+  public Department takeDepartment() {
     return department;
   }
 
@@ -95,7 +95,7 @@ public class Doctor {
     this.department = department;
   }
 
-  public AccountStatus getStatus() {
+  public AccountStatus takeStatus() {
     return status;
   }
 
